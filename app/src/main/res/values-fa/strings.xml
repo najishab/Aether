@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ناجی ایثر</string>
+    <string name="tagline">آزادی، در یک لمس</string>
+
+    <string name="advanced">تنظیمات پیشرفته</string>
+
+    <string name="protocol">پروتکل</string>
+    <string name="protocol_auto">هوشمند</string>
+    <string name="protocol_masque">MASQUE</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="protocol_gool">Gool</string>
+
+    <string name="scan_mode">حالت اسکن</string>
+    <string name="scan_turbo">توربو</string>
+    <string name="scan_balanced">متعادل</string>
+    <string name="scan_thorough">دقیق</string>
+    <string name="scan_stealth">مخفی</string>
+    <string name="scan_ironclad">زره‌پوش</string>
+
+    <string name="ip_version">نسخه IP</string>
+    <string name="ip_v4">IPv4</string>
+    <string name="ip_v6">IPv6</string>
+    <string name="ip_both">هر دو</string>
+
+    <string name="quick_reconnect">اتصال مجدد سریع</string>
+    <string name="quick_reconnect_desc">بعد از قطعی، سریع‌تر وصل شو</string>
+    <string name="masque_http2">MASQUE روی HTTP/2</string>
+    <string name="masque_http2_desc">استفاده از HTTP/2 برای انتقال MASQUE</string>
+
+    <string name="state_idle">قطع شده</string>
+    <string name="state_launching">در حال راه‌اندازی هسته…</string>
+    <string name="state_connecting">در حال اتصال…</string>
+    <string name="state_connected">متصل</string>
+    <string name="state_reconnecting">در حال اتصال مجدد…</string>
+    <string name="state_disconnecting">در حال قطع…</string>
+    <string name="state_error">اتصال ناموفق بود</string>
+
+    <string name="tap_to_connect">برای اتصال امن لمس کنید</string>
+    <string name="tap_to_disconnect">برای قطع لمس کنید</string>
+    <string name="secure_via">تونل امن از طریق %1$s</string>
+    <string name="reconnect_attempt">تلاش %1$d از %2$d</string>
+
+    <string name="notif_channel">وضعیت VPN</string>
+    <string name="notif_channel_desc">وضعیت اتصال ناجی ایثر را نشان می‌دهد</string>
+    <string name="notif_title">ناجی ایثر</string>
+
+    <string name="err_engine_timeout">هسته نتوانست پراکسی محلی را به‌موقع باز کند.</string>
+    <string name="err_engine_died">هسته به‌طور غیرمنتظره متوقف شد.</string>
+    <string name="err_proxy_ports">پورت‌های پراکسی محلی باز نشدند — احتمالاً برنامهٔ دیگری از آن‌ها استفاده می‌کند.</string>
+
+    <!-- Connection meta: IP + flag + timer -->
+    <string name="ip_your_label">آی‌پی شما</string>
+    <string name="ip_server_label">آی‌پی سرور</string>
+    <string name="ip_checking">در حال بررسی آی‌پی…</string>
+    <string name="ip_unavailable">آی‌پی در دسترس نیست</string>
+    <string name="connected_for">مدت اتصال</string>
+
+    <!-- Diagnostics panel -->
+    <string name="diag_title">عیب‌یابی و لاگ‌ها</string>
+    <string name="diag_subtitle">وضعیت زنده‌ی همه‌ی بخش‌های تونل</string>
+    <string name="diag_run">اجرای تست</string>
+    <string name="diag_copy">کپی لاگ‌ها</string>
+    <string name="diag_clear">پاک کردن</string>
+    <string name="diag_copied">لاگ‌ها در کلیپ‌بورد کپی شد</string>
+    <string name="diag_all_ok">همه‌ی بررسی‌ها موفق بود — ترافیک باید برقرار باشد</string>
+    <string name="diag_problem">مشکلی شناسایی شد — بررسی ناموفق را ببینید</string>
+    <string name="diag_idle">برای بررسی اتصال، تست را اجرا کنید</string>
+    <string name="diag_empty_logs">هنوز لاگی نیست. متصل شوید یا تست را اجرا کنید.</string>
+
+    <!-- About panel -->
+    <string name="about_title">درباره</string>
+    <string name="about_subtitle">سازندگان، لینک‌ها و تغییرات این نسخه</string>
+    <string name="about_version">نسخه %1$s</string>
+    <string name="about_original_title">پروژه اصلی</string>
+    <string name="about_original_note">هسته‌ی اصلی که این برنامه از آن قدرت می‌گیرد</string>
+    <string name="about_port_title">نسخه اندروید</string>
+    <string name="about_port_note">مواردی که در این نسخه ارتقا داده‌ایم</string>
+    <string name="about_description">ناجی ایثر یک کلاینت VPN سریع و امن است که بر پایه‌ی موتور تونل‌سازی Aether ساخته شده. اتصال شما را از طریق MASQUE، WireGuard یا Gool برقرار می‌کند و به‌صورت خودکار پروتکلی را انتخاب می‌کند که واقعاً روی شبکه‌ی شما کار می‌کند، همراه با مبهم‌سازی ضد‌DPI برای شبکه‌های محدودشده. بدون حساب کاربری، بدون لاگ، بدون ردیاب — فقط یک تونل خصوصی با یک لمس.</string>
+    <string name="menu_open">باز کردن منو</string>
+    <string name="advanced_open">باز کردن تنظیمات پیشرفته</string>
+
+    <!-- Quick Settings tile -->
+    <string name="qs_tile_label">ناجی ایثر</string>
+
+    <!-- Share VPN panel -->
+    <string name="share_title">اشتراک‌گذاری VPN</string>
+    <string name="share_subtitle">استفاده از این گوشی به‌عنوان پراکسی برای لپ‌تاپ یا گوشی دیگر</string>
+    <string name="share_toggle">اشتراک‌گذاری در این شبکه</string>
+    <string name="share_toggle_desc">یک پراکسی محلی باز می‌کند که دستگاه‌های روی همین وای‌فای یا هات‌اسپات می‌توانند استفاده کنند</string>
+    <string name="share_http_label">پراکسی HTTP — در تنظیمات پراکسی سیستم وارد کنید</string>
+    <string name="share_socks_label">پراکسی SOCKS5 — برای برنامه‌هایی که SOCKS پشتیبانی می‌کنند</string>
+    <string name="share_copy">کپی آدرس</string>
+    <string name="share_copied">آدرس کپی شد</string>
+    <string name="share_need_connect">اول VPN را وصل کنید — اشتراک‌گذاری، دستگاه‌های دیگر را از طریق تونل همین گوشی عبور می‌دهد.</string>
+    <string name="share_starting">در حال راه‌اندازی اشتراک‌گذاری… اگر بیش از چند ثانیه طول کشید، سوییچ را خاموش و دوباره روشن کنید.</string>
+    <string name="share_need_wifi">برای اشتراک‌گذاری به وای‌فای وصل شوید یا هات‌اسپات را روشن کنید.</string>
+    <string name="share_howto">در دستگاه دیگر (روی همان شبکه)، تنظیمات پراکسی را باز کنید و یکی از این آدرس‌ها را وارد کنید:</string>
+    <string name="share_warning">تا وقتی اشتراک‌گذاری روشن است، هر کسی در این شبکه می‌تواند از پراکسی استفاده کند. فقط در شبکه‌های مطمئن استفاده کنید.</string>
+
+    <string name="traffic_download">دانلود</string>
+    <string name="traffic_upload">آپلود</string>
+    <string name="traffic_total">مجموع %1$s</string>
+
+    <!-- مبهم‌سازی (امنزیا) -->
+    <string name="noize_title">مبهم‌سازی (امنزیا)</string>
+    <string name="noize_desc">تزریق بسته‌های زائد و دست‌دادن جعلی تا DPI نتواند تونل را شناسایی کند</string>
+    <string name="noize_off">خاموش</string>
+    <string name="noize_light">سبک</string>
+    <string name="noize_firewall">فایروال</string>
+    <string name="noize_balanced">متعادل</string>
+    <string name="noize_gfw">GFW</string>
+    <string name="noize_aggressive">تهاجمی</string>
+
+    <!-- انتخاب اندپوینت / رنج دستی -->
+    <string name="endpoint_mode">اندپوینت</string>
+    <string name="endpoint_auto">اسکن خودکار</string>
+    <string name="endpoint_peer">آی‌پی دستی</string>
+    <string name="endpoint_range">رنج دلخواه</string>
+    <string name="manual_peer_label">اندپوینت (ip:port)</string>
+    <string name="manual_peer_hint">مثال: 162.159.192.1:443</string>
+    <string name="manual_range_label">رنج(های) آی‌پی برای اسکن</string>
+    <string name="manual_range_hint">مثال: 8.6.112.0/24, 188.114.96.0/24</string>
+    <string name="manual_range_help">موتور فقط رنجی را که وارد می‌کنید اسکن می‌کند. فرمت‌های 8.6.112.x یا 8.6.112.0/24 یا یک آی‌پی تکی پذیرفته می‌شود. چند رنج را با ویرگول جدا کنید.</string>
+
+    <!-- تنظیم انتقال -->
+    <string name="keepalive_label">Keepalive (ثانیه)</string>
+    <string name="keepalive_default">پیش‌فرض</string>
+    <string name="fragment_title">تکه‌تکه‌سازی TLS</string>
+    <string name="fragment_desc">تقسیم دست‌دادن TLS برای عبور از DPI</string>
+    <string name="ech_title">Encrypted Client Hello</string>
+    <string name="ech_desc">پنهان‌کردن نام مقصد (SNI) از DPI</string>
+    <string name="mtu_label">MTU</string>
+    <string name="mtu_desc">مقادیر کمتر (۱۲۸۰) روی دیتای موبایل امن‌تر است</string>
+
+    <!-- حالت پراکسی + اسپلیت تانل -->
+    <string name="proxy_mode_title">حالت پراکسی (بدون VPN سیستمی)</string>
+    <string name="proxy_mode_desc">به‌جای عبور کل دستگاه، یک پراکسی محلی SOCKS5/HTTP اجرا می‌کند</string>
+    <string name="proxy_endpoints_hint">آدرس‌های ثابت — یکی از این‌ها را در تنظیمات پراکسی برنامهٔ موردنظر وارد کنید:</string>
+    <string name="proxy_socks_label">پراکسی SOCKS5</string>
+    <string name="proxy_http_label">پراکسی HTTP</string>
+    <string name="split_mode">تونل تفکیکی</string>
+    <string name="split_off">خاموش</string>
+    <string name="split_include">فقط انتخاب‌شده‌ها</string>
+    <string name="split_exclude">به‌جز انتخاب‌شده‌ها</string>
+    <string name="split_select_apps">انتخاب برنامه‌ها (%1$d)</string>
+    <string name="apps_dialog_title">انتخاب برنامه‌ها</string>
+    <string name="apps_search_hint">جستجوی برنامه‌ها</string>
+    <string name="apps_done">تمام</string>
+    <string name="apps_loading">در حال بارگذاری برنامه‌ها…</string>
+    <string name="section_transport">انتقال و ضد-DPI</string>
+    <string name="section_routing">مسیریابی</string>
+
+    <!-- گیت آمادگی + بازنشانی تنظیمات (v1.2.1) -->
+    <string name="state_verifying">در حال بررسی سلامت اتصال…</string>
+    <string name="state_analyzing">در حال تحلیل شبکه (اتصال هوشمند)…</string>
+    <string name="err_auto_failed">اتصال هوشمند همهٔ راهبردها را امتحان کرد اما هیچ‌کدام روی این شبکه متصل نشد. یک پروتکل را دستی انتخاب کنید.</string>
+    <string name="err_protocol_failed">این پروتکل حتی با مبهم‌سازی هم روی این شبکه متصل نشد. حالت هوشمند یا پروتکل دیگری را امتحان کنید.</string>
+    <string name="err_selftest">تونل برقرار شد اما تست سرتاسری (انتها-به-انتها) ناموفق بود. دوباره تلاش کنید.</string>
+    <string name="section_reset">بازنشانی</string>
+    <string name="reset_settings">بازگرداندن همهٔ تنظیمات به پیش‌فرض</string>
+    <string name="reset_done">تنظیمات به حالت اولیه برگشت</string>
+
+    <!-- Language Switcher -->
+    <string name="language_setting">زبان برنامه</string>
+    <string name="language_name">فارسی</string>
+    <string name="change_language_desc">برای تغییر به انگلیسی ضربه بزنید</string>
+
+
+    <!-- آپدیت داخل برنامه (v1.2.1) -->
+    <!-- ۱.۲.۲: رشته‌های به‌روزرسانی درون‌برنامه‌ای همراه با خود ماژول حذف شدند.
+         از این پس به‌روزرسانی فقط از صفحهٔ رسمی و امضاشدهٔ Release در گیت‌هاب. -->
+
+    <!-- انتخاب لوکیشن (جدید در ۱.۲.۲) -->
+
+
+    <!-- درباره: نسخهٔ هسته (همتای نسخهٔ ویندوز) -->
+    <string name="about_core_version">نسخهٔ هسته (Core) %1$s</string>
+
+    <!-- قابلیت‌های هستهٔ ۱.۵.۰ -->
+    <string name="section_zerotrust">Zero Trust (سازمانی)</string>
+    <string name="team_auth_label">روش عضویت</string>
+    <string name="team_auth_off">خاموش</string>
+    <string name="team_auth_service">توکن سرویس</string>
+    <string name="team_auth_email">کد ایمیلی</string>
+    <string name="team_auth_token">توکن عضویت</string>
+    <string name="team_auth_desc">اتصال به یک سازمان Cloudflare Zero Trust به‌جای WARP شخصی. برای استفادهٔ معمولی خاموش بماند.</string>
+    <string name="team_label">نام تیم</string>
+    <string name="team_hint">acme</string>
+    <string name="team_help">فقط نام؛ مثلاً acme یعنی acme.cloudflareaccess.com</string>
+    <string name="access_id_label">شناسهٔ کلاینت</string>
+    <string name="access_secret_label">کلید محرمانه</string>
+    <string name="access_email_label">ایمیل سازمانی</string>
+    <string name="access_token_label">توکن عضویت</string>
+    <string name="access_secret_help">رمزنگاری‌شده با کلید سخت‌افزاری ذخیره می‌شود و هرگز به‌صورت آرگومان خط فرمان به هسته داده نمی‌شود.</string>
+    <string name="gateway_title">استفاده از Gateway سازمان</string>
+    <string name="gateway_desc">ترافیک HTTP/HTTPS را از پروکسی فیلترینگ سازمان عبور می‌دهد. یک پرش اضافه می‌کند و سازمان می‌تواند مرور شما را ثبت کند؛ جز در صورت نیاز خاموش بماند.</string>
+
+    <string name="section_routes">قواعد مسیریابی</string>
+    <string name="route_block_label">هرگز وصل نشو (بلاک)</string>
+    <string name="route_block_hint">ads.example.com, port:25</string>
+    <string name="route_direct_label">بدون تونل (مستقیم)</string>
+    <string name="route_direct_hint">private, bank.example.com</string>
+    <string name="routes_help">با کاما جدا کنید. پشتیبانی از example.com و full: و keyword: و regexp: و 10.0.0.0/8 و port:25 و private. ابتدا بلاک بررسی می‌شود، سپس مستقیم.</string>
+
+    <string name="dns_label">DNS داخل تونل</string>
+    <string name="dns_hint">1.1.1.1, 1.0.0.1</string>
+    <string name="dns_help">برای مقدار پیش‌فرض هسته (1.1.1.1, 1.0.0.1) خالی بگذارید. ورودی‌های نامعتبر نادیده گرفته می‌شوند.</string>
+    <!-- Feature merge: widget, onboarding, ping, crash report -->
+    <string name="widget_desc">اتصال یا قطع Aether با یک لمس</string>
+    <string name="widget_toggle_desc">تغییر وضعیت اتصال</string>
+    <string name="ping_label">پینگ</string>
+    <string name="ping_measuring">در حال اندازه‌گیری…</string>
+    <string name="ping_unavailable">ناموجود</string>
+    <string name="ping_hint">برای اندازه‌گیری دوباره لمس کنید</string>
+    <string name="onboarding_skip">رد کردن</string>
+    <string name="onboarding_next">بعدی</string>
+    <string name="onboarding_start">شروع</string>
+    <string name="onboarding_title_1">به Aether خوش آمدید</string>
+    <string name="onboarding_body_1">تانل سریع و امن برای عبور از سانسور. با یک لمس از طریق MASQUE، WireGuard یا Gool متصل شوید.</string>
+    <string name="onboarding_title_2">انتخاب هوشمند پروتکل</string>
+    <string name="onboarding_body_2">حالت هوشمند شبکه شما را بررسی می‌کند و پروتکلی را انتخاب می‌کند که واقعاً کار می‌کند، در صورت نیاز با مبهم‌سازی ضد DPI.</string>
+    <string name="onboarding_title_3">حریم خصوصی از همان ابتدا</string>
+    <string name="onboarding_body_3">بدون حساب کاربری، بدون لاگ، بدون ردیاب. اندروید در اولین اتصال اجازه VPN می‌خواهد؛ این سیستم است که کنترل را به شما می‌دهد.</string>
+    <string name="crash_title">Aether به‌طور غیرمنتظره متوقف شد</string>
+    <string name="crash_subtitle">جزئیات زیر توسط کنترل‌کننده خرابی ذخیره شده است. می‌توانید آن را در گزارش خطا کپی کنید.</string>
+    <string name="crash_copy">کپی جزئیات</string>
+    <string name="crash_copied">کپی شد</string>
+    <string name="crash_dismiss">بستن</string>
+    <!-- 1.2.4 -->
+    <string name="section_security">امنیت و پایداری</string>
+    <string name="kill_switch_title">کیل سوییچ</string>
+    <string name="kill_switch_desc">در صورت قطع غیرمنتظره تونل، کل ترافیک مسدود می‌شود تا هیچ نشتی خارج از VPN رخ ندهد</string>
+    <string name="strict_kill_switch_title">کیل سوییچ سخت‌گیرانه</string>
+    <string name="strict_kill_switch_desc">حتی پس از قطع دستی هم مسدودسازی ادامه می‌یابد تا زمانی که خودتان آن را لغو کنید</string>
+    <string name="state_killswitch">کیل سوییچ فعال است - ترافیک مسدود شد</string>
+    <string name="ipv6_leak_title">محافظت در برابر نشت IPv6</string>
+    <string name="ipv6_leak_desc">ترافیک IPv6 نیز از داخل تونل عبور می‌کند</string>
+    <string name="smart_reconnect_title">اتصال مجدد هوشمند</string>
+    <string name="smart_reconnect_desc">پس از تعداد مشخصی تلاش ناموفق، متوقف شده و خطا گزارش می‌شود</string>
+    <string name="reconnect_limit_label">حداکثر تلاش‌های اتصال مجدد</string>
+    <string name="section_engine_tuning">تنظیمات پیشرفته هسته</string>
+    <string name="fragment_size_label">بازه اندازه فرگمنت</string>
+    <string name="fragment_size_hint">16-32</string>
+    <string name="fragment_delay_label">بازه تاخیر فرگمنت (میلی‌ثانیه)</string>
+    <string name="fragment_delay_hint">2-10</string>
+    <string name="no_data_check_title">بدون بررسی داده</string>
+    <string name="no_data_check_desc">رد کردن بررسی سرتاسری داده پس از اتصال</string>
+    <string name="tls_groups_label">گروه‌های TLS</string>
+    <string name="tls_groups_hint">X25519:P-256</string>
+    <string name="validate_secs_label">ثانیه‌های اعتبارسنجی (0 = پیش‌فرض)</string>
+    <string name="reconnect_secs_label">ثانیه‌های اتصال مجدد (0 = پیش‌فرض)</string>
+    <string name="secs_hint">0</string>
+    <string name="no_profile_retry_title">بدون تلاش مجدد پروفایل</string>
+    <string name="no_profile_retry_desc">عدم بازگشت به پروفایل‌های جایگزین WireGuard</string>
+    <string name="core_log_level_label">سطح لاگ هسته</string>
+    <string name="blocked_select_apps">اپ‌های مسدودشده (%1$d)</string>
+    <string name="blocked_apps_desc">اپ‌های مسدودشده هنگام روشن بودن VPN هیچ دسترسی به اینترنت ندارند. پل فیلتر داخلی فعال می‌شود.</string>
+    <!-- 1.2.4 -->
+    <string name="meta_protocol">پروتکل</string>
+    <string name="meta_endpoint">اندپوینت</string>
+    <string name="meta_latency">تأخیر</string>
+
+    <!-- قابلیت‌های هستهٔ 1.7.0 (نسخهٔ ۱.۲.۶) -->
+    <string name="route_sniff_title">تطبیق قواعد دامنه در پشت تونل</string>
+    <string name="route_sniff_desc">نام سایت را از دست‌دادن اولیهٔ TLS/HTTP می‌خواند تا قواعد دامنهٔ بالا در اندروید هم کار کنند؛ چون در غیر این صورت موتور فقط یک آی‌پی می‌بیند.</string>
+    <string name="route_sniff_ms_label">مدت انتظار برای نام (میلی‌ثانیه)</string>
+    <string name="route_sniff_ms_hint">400</string>
+    <string name="section_upstream">پراکسی بالادست (زنجیره‌سازی)</string>
+    <string name="upstream_label">پراکسی بالادست</string>
+    <string name="upstream_hint">socks5://127.0.0.1:1080</string>
+    <string name="upstream_help">اتصال را از دل پراکسی‌ای که همین حالا روی گوشی اجراست بیرون می‌برد. آدرس socks5://host:port همهٔ پروتکل‌ها را حمل می‌کند؛ http://host:port فقط MASQUE روی HTTP/2 را که خودِ برنامه برایتان فعال می‌کند. نام کاربری و گذرواژه را می‌توانید به شکل user:pass@host:port بنویسید؛ این مقدار به‌صورت محرمانه به موتور داده می‌شود و هرگز در خط فرمان آن قرار نمی‌گیرد. برای اتصال مستقیم خالی بگذارید.</string>
+    <string name="reprovision_title">جایگزینی شناسهٔ ردشده</string>
+    <string name="reprovision_desc">اگر کلادفلر شناسهٔ ذخیره‌شدهٔ دستگاه را نپذیرد، به‌جای نگه‌داشتن تونلی که وصل می‌شود اما ترافیکی عبور نمی‌دهد، به‌صورت خودکار شناسهٔ تازه ثبت می‌کند.</string>
+
+    <!-- تأیید خروج -->
+    <string name="exit_confirm_title">خروج از ناجی ایثر؟</string>
+    <string name="exit_confirm_message">آیا مطمئن هستید که می‌خواهید برنامه را ببندید؟</string>
+    <string name="exit_confirm_yes">خروج</string>
+    <string name="exit_confirm_no">انصراف</string>
+</resources>

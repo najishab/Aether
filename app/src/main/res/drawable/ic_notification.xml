@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- قاب سپر (Shield) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="26"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M256,48 C340,48 420,78 420,135 V250 C420,355 335,430 256,462 C177,430 92,355 92,250 V135 C92,78 172,48 256,48 Z" />
+
+    <!-- شاخه سمت چپ N -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M165,145 C165,145 165,335 165,355 C165,370 178,375 188,365 L230,320 V145 Z" />
+
+    <!-- شاخه سمت راست N -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M188,145 L325,350 C333,362 348,355 348,340 V160 C348,145 333,150 323,160 L282,205 V315 Z" />
+
+    <!-- دایره مرکز همراه با توخالی کردن حلقه مابین و نقطه وسط (حالت تک‌رنگ استاندارد نوتیفیکیشن) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M256,222 A34,34 0 1,0 256,290 A34,34 0 1,0 256,222 Z M256,234 A22,22 0 1,1 256,278 A22,22 0 1,1 256,234 Z M256,246 A10,10 0 1,0 256,266 A10,10 0 1,0 256,246 Z" />
+</vector>

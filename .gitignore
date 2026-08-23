@@ -1,0 +1,41 @@
+# Gradle / Android
+.gradle/
+build/
+/local.properties
+/captures
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Native cores fetched/built at CI time (never commit binaries)
+app/src/main/jniLibs/
+app/src/main/cpp/hev-socks5-tunnel/
+
+# Build-time working copy of native sources (the engine is vendored under
+# native/aether instead — THAT one is committed; this .native cache is not).
+.native/
+native/aether/target/
+
+# Core auto-upgrade working state (scripts/sync-core.sh): a snapshot of the
+# previous engine used to roll back if the new one does not compile, plus the
+# marker the CI commit step reads. Never committed.
+native/.core-prev/
+native/.core-sync-state
+
+# Signing (NEVER commit signing credentials)
+keystore.properties
+release.keystore
+
+# Extra excludes
+.github/ci-keystore.jks.b64
+.kotlin/
+*.so
+*.md
