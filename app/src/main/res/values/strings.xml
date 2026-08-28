@@ -279,4 +279,27 @@
     <string name="exit_confirm_message">Are you sure you want to close the app?</string>
     <string name="exit_confirm_yes">Exit</string>
     <string name="exit_confirm_no">Cancel</string>
+
+    <!-- More panel (top-right) -->
+    <string name="more_open">Open more</string>
+    <string name="more_title">More</string>
+    <string name="theme_setting">Theme</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_system">System</string>
+    <string name="live_graph_title">Live graph</string>
+    <string name="live_graph_subtitle">Real-time download/upload speed</string>
+    <string name="live_graph_session_usage">Usage during the last connection: %1$s</string>
+    <string name="usage_calendar_title">Usage calendar</string>
+    <string name="usage_calendar_subtitle">Daily data usage history</string>
+    <string name="changelog_title">Changelog</string>
+    <string name="changelog_subtitle">What changed in each version</string>
+    <string name="changelog_checking">Checking for a newer release…</string>
+    <string name="changelog_new_version">New version available: %1$s</string>
+    <string name="changelog_view_release">Open release page</string>
+    <string name="back">Back</string>
+
+    <!-- In-app announcements -->
+    <string name="announcement_dismiss">Dismiss</string>
+    <string name="announcement_learn_more">Learn more</string>
 </resources>

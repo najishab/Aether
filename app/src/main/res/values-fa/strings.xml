@@ -274,8 +274,30 @@
     <string name="reprovision_desc">اگر کلادفلر شناسهٔ ذخیره‌شدهٔ دستگاه را نپذیرد، به‌جای نگه‌داشتن تونلی که وصل می‌شود اما ترافیکی عبور نمی‌دهد، به‌صورت خودکار شناسهٔ تازه ثبت می‌کند.</string>
 
     <!-- تأیید خروج -->
+    <string name="more_open">باز کردن بیشتر</string>
+    <string name="more_title">بیشتر</string>
+    <string name="theme_setting">پوسته</string>
+    <string name="theme_dark">تیره</string>
+    <string name="theme_light">روشن</string>
+    <string name="theme_system">سیستم</string>
+    <string name="live_graph_title">گراف زنده</string>
+    <string name="live_graph_subtitle">سرعت لحظه‌ای دانلود و آپلود</string>
+    <string name="live_graph_session_usage">مصرف در آخرین اتصال: %1$s</string>
+    <string name="usage_calendar_title">تقویم مصرف</string>
+    <string name="usage_calendar_subtitle">تاریخچهٔ مصرف روزانه</string>
+    <string name="changelog_title">تغییرات نسخه</string>
+    <string name="changelog_subtitle">چه چیزی در هر نسخه تغییر کرده</string>
+    <string name="changelog_checking">در حال بررسی نسخهٔ تازه‌تر…</string>
+    <string name="changelog_new_version">نسخهٔ تازه‌تری موجود است: %1$s</string>
+    <string name="changelog_view_release">باز کردن صفحهٔ ریلیز</string>
+    <string name="back">بازگشت</string>
+
     <string name="exit_confirm_title">خروج از ناجی ایثر؟</string>
     <string name="exit_confirm_message">آیا مطمئن هستید که می‌خواهید برنامه را ببندید؟</string>
     <string name="exit_confirm_yes">خروج</string>
     <string name="exit_confirm_no">انصراف</string>
+
+    <!-- اطلاعیه‌های درون‌برنامه‌ای -->
+    <string name="announcement_dismiss">بستن</string>
+    <string name="announcement_learn_more">بیشتر بدانید</string>
 </resources>

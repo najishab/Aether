@@ -29,6 +29,18 @@ val AetherError = AetherDanger
 val OnDark = Color(0xFFF1F5FF)
 val OnDarkMuted = Color(0xFF8995B3)
 
+// ---- Light theme palette ----
+//
+// Same design language as the dark "Dark Tech" scheme (same brand blue,
+// same shapes/spacing), just with a light backdrop and dark text - not the
+// wallpaper-driven Material You dynamic palette.
+val LightBackground = Color(0xFFF7F9FC)
+val LightSurface = Color(0xFFFFFFFF)
+val LightSurfaceVariant = Color(0xFFE7ECF5)
+val LightOnBackground = Color(0xFF0B1220)
+val LightOnSurfaceVariant = Color(0xFF4B5568)
+val LightOutline = Color(0xFFD3DAE6)
+
 // ---- Brand tokens for the unified connection card (1.2.6) ----
 //
 // The card is pinned to these instead of MaterialTheme, because Material You

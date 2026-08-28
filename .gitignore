@@ -39,3 +39,5 @@ release.keystore
 .kotlin/
 *.so
 *.md
+!/README.md
+!/README.fa.md

@@ -57,5 +57,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AetherMobile"
+rootProject.name = "NajiAethers"
 include(":app")

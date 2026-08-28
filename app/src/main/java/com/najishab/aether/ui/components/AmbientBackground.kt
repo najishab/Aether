@@ -3,10 +3,10 @@ package com.najishab.aether.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.najishab.aether.ui.theme.Navy900
 
 /**
  * The app backdrop: a single, flat, static colour.
@@ -20,6 +20,10 @@ import com.najishab.aether.ui.theme.Navy900
  * that costs exactly one fill and never invalidates. Nothing animates behind
  * the UI any more, so every frame budget belongs to the UI itself.
  *
+ * Follows MaterialTheme.colorScheme.background (dark navy / light / dynamic)
+ * so the light theme setting actually repaints the home screen, not just the
+ * drawer and sheets.
+ *
  * The parameters are kept so callers stay unchanged; they no longer affect the
  * backdrop.
  */
@@ -29,8 +33,5 @@ fun AmbientBackground(
     active: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize().background(BACKDROP))
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
 }
-
-/** The flat app background colour - "Dark Tech" near-black navy (#070B17). */
-private val BACKDROP: Color = Navy900

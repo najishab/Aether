@@ -4,7 +4,6 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
@@ -12,6 +11,11 @@ val abiCodes = mapOf("armeabi-v7a" to 1, "arm64-v8a" to 2, "universal" to 3)
 
 val keystoreProps = Properties().apply {
     val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }
 
@@ -41,8 +45,8 @@ android {
         applicationId = "com.najishab.aether"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
 
         ndk {
             // We ship arm64 (primary) and arm builds.
@@ -50,16 +54,30 @@ android {
         }
 
         val githubRepo = System.getenv("GITHUB_REPOSITORY")
-            ?: (project.findProperty("githubRepo") as? String ?: "")
-        val releasesUrl =
-            if (githubRepo.isNotBlank()) "https://github.com/$githubRepo/releases/latest" else ""
+            ?: (project.findProperty("githubRepo") as? String)
+            // Fallback so local/dev builds (no CI env var) still know the
+            // repo slug - needed for the in-app Changelog's GitHub check.
+            ?: "najishab/aether"
+        val releasesUrl = "https://github.com/$githubRepo/releases/latest"
         buildConfigField("String", "RELEASES_URL", "\"$releasesUrl\"")
+        buildConfigField("String", "GITHUB_REPO", "\"$githubRepo\"")
+
+        // In-app announcements: raw JSON array read straight off the default
+        // branch (docs/announcements.json), same repo as the changelog uses.
+        // No GitHub auth needed - it's a public raw file, not the API.
+        val announcementsUrl = "https://raw.githubusercontent.com/$githubRepo/main/docs/announcements.json"
+        buildConfigField("String", "ANNOUNCEMENTS_URL", "\"$announcementsUrl\"")
 
         // Aether engine (core) version compiled into this build. CI keeps this
         // in sync with native/aether/CORE_VERSION via scripts/sync-core.sh.
         val coreVersion = rootProject.file("native/aether/CORE_VERSION")
             .takeIf { it.exists() }?.readText()?.trim().orEmpty().ifBlank { "unknown" }
         buildConfigField("String", "CORE_VERSION", "\"$coreVersion\"")
+
+        val mixpanelToken = localProps.getProperty("mixpanel.token")
+            ?: System.getenv("MIXPANEL_TOKEN")
+            ?: ""
+        buildConfigField("String", "MIXPANEL_TOKEN", "\"$mixpanelToken\"")
     }
 
 
@@ -87,6 +105,7 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
+            isDefault = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -96,6 +115,9 @@ android {
             } else {
                 null
             }
+        }
+        debug {
+            isDefault = false
         }
     }
 
@@ -112,9 +134,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -147,6 +166,17 @@ if (!hasReleaseKeystore && !useCiKeystore) {
     }
 }
 
+// Bundles the CURRENT release's notes (English + Persian) into the app so
+// the in-app Changelog screen has something to show with zero network
+// calls. This file is the single source of truth CI already writes/uses as
+// the GitHub release body for every release - copying it here (instead of
+// hand-maintaining a second copy) means it can never drift out of sync.
+val copyReleaseNotes by tasks.registering(Copy::class) {
+    from(rootProject.file(".github/release-notes.md"))
+    into(layout.projectDirectory.dir("src/main/assets"))
+}
+tasks.named("preBuild") { dependsOn(copyReleaseNotes) }
+
 androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
@@ -177,6 +207,9 @@ dependencies {
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    // Mixpanel Analytics: user stats screen in the More panel.
+    implementation("com.mixpanel.android:mixpanel-android:8.9.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

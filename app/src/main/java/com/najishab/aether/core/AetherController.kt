@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import com.najishab.aether.model.ConnectionProfile
 import com.najishab.aether.model.CoreLogLevel
 import com.najishab.aether.model.ConnectionState
+import com.najishab.aether.model.isBusy
 import com.najishab.aether.model.EndpointMode
 import com.najishab.aether.model.IpVersion
 import com.najishab.aether.model.Noize
@@ -40,14 +41,28 @@ object AetherController {
 
     /** Called by the service to broadcast state changes. */
     fun setState(newState: ConnectionState) {
+        val previous = _state.value
         _state.value = newState
         when (newState) {
-            is ConnectionState.Connected ->
+            is ConnectionState.Connected -> {
                 if (_connectedSince.value == null) _connectedSince.value = System.currentTimeMillis()
+                if (previous !is ConnectionState.Connected) {
+                    AetherAnalytics.logConnect(newState.socksAddr)
+                }
+            }
             is ConnectionState.Reconnecting -> {
                 // Keep the running timer during a transient reconnect.
             }
-            else -> _connectedSince.value = null
+            is ConnectionState.Error -> {
+                _connectedSince.value = null
+                AetherAnalytics.logConnectFailed(newState.message)
+            }
+            else -> {
+                if (previous is ConnectionState.Connected || previous.isBusy) {
+                    AetherAnalytics.logDisconnect()
+                }
+                _connectedSince.value = null
+            }
         }
     }
 

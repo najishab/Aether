@@ -18,10 +18,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.najishab.aether.data.ThemeMode
+import com.najishab.aether.data.ThemeStore
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
@@ -43,9 +46,11 @@ class CrashReportActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val crashFile = File(filesDir, "last_crash.txt")
         val details = runCatching { crashFile.readText() }.getOrDefault("")
+        val themeStore = ThemeStore(applicationContext)
 
         setContent {
-            AetherTheme {
+            val themeMode by themeStore.mode.collectAsState(initial = ThemeMode.DARK)
+            AetherTheme(themeMode = themeMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,

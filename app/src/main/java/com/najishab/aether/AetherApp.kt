@@ -5,10 +5,21 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.util.Log
+import com.najishab.aether.core.AetherAnalytics
+import com.najishab.aether.core.AnnouncementManager
 import com.najishab.aether.core.DiagnosticsLog
+import com.najishab.aether.core.TrafficMonitor
+import com.najishab.aether.data.UsageStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 class AetherApp : Application() {
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun onCreate() {
         super.onCreate()
 
@@ -16,6 +27,30 @@ class AetherApp : Application() {
         // startup (and any crash) is written to disk and survives process death.
         DiagnosticsLog.init(File(filesDir, "diagnostics.log"))
         installCrashHandler()
+
+        AetherAnalytics.init(this)
+
+        // Usage Calendar (More panel): periodically checkpoints device-wide
+        // TrafficStats into UsageStore so today's bucket keeps accruing while
+        // the process is alive. See UsageStore's kdoc for what it does and
+        // does not measure.
+        val usageStore = UsageStore(this)
+        appScope.launch {
+            while (true) {
+                runCatching { usageStore.recordTick() }
+                delay(USAGE_TICK_MS)
+            }
+        }
+
+        // Live Graph (More panel): sampled continuously from process start so
+        // its history and per-connection usage total survive the screen being
+        // closed and reopened - see TrafficMonitor's kdoc.
+        TrafficMonitor.start(appScope)
+
+        // In-app announcements: periodic poll of a small JSON file on GitHub
+        // (docs/announcements.json) - see AnnouncementManager's kdoc for why
+        // this is an in-app card rather than a second, stacked notification.
+        AnnouncementManager.start(this, appScope)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -68,5 +103,7 @@ class AetherApp : Application() {
 
         /** Standalone crash report consumed by [CrashReportActivity]. */
         const val CRASH_FILE = "last_crash.txt"
+
+        private const val USAGE_TICK_MS = 60_000L
     }
 }

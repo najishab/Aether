@@ -468,6 +468,7 @@ class SocksTunBridge(
         return connectionOwnerResolver.resolve(protocol, local, remote)
     }
 
+    @Suppress("DEPRECATION")
     private fun underlyingNetwork(): Network? {
         val candidates = connectivityManager.allNetworks.filter { network ->
             val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return@filter false

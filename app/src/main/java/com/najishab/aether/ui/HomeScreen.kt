@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -28,7 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,12 +43,14 @@ import kotlinx.coroutines.delay
 import android.os.Process
 import com.najishab.aether.R
 import com.najishab.aether.core.AetherController
+import com.najishab.aether.core.AnnouncementManager
 import com.najishab.aether.core.IpEndpoint
 import com.najishab.aether.model.ConnectionProfile
 import com.najishab.aether.model.ConnectionState
 import com.najishab.aether.model.isBusy
 import com.najishab.aether.model.isConnected
 import com.najishab.aether.ui.components.AmbientBackground
+import com.najishab.aether.ui.components.AnnouncementBanner
 import com.najishab.aether.ui.components.ButtonMode
 import com.najishab.aether.ui.components.ConnectButton
 import com.najishab.aether.ui.components.ConnectionCard
@@ -73,6 +74,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import android.app.Activity
+import android.content.Intent
+import com.najishab.aether.ChangelogActivity
+import com.najishab.aether.LiveGraphActivity
+import com.najishab.aether.UsageCalendarActivity
+import com.najishab.aether.data.ThemeMode
+import androidx.compose.material.icons.rounded.History
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,6 +91,8 @@ fun HomeScreen(
     ipLoading: Boolean,
     onProfileChange: (ConnectionProfile) -> Unit,
     onToggleConnection: () -> Unit,
+    themeMode: ThemeMode = ThemeMode.DARK,
+    onThemeModeChange: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val mode = when {
@@ -121,9 +130,11 @@ fun HomeScreen(
     // only composed while the drawer is open or opening.
     val drawerVisible = drawerState.isOpen || drawerState.targetValue == DrawerValue.Open
 
-    // Advanced settings, reachable directly from the home screen (top-right).
-    var showAdvancedSheet by remember { mutableStateOf(false) }
-    val advancedSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // "More" panel (theme, live graph, usage calendar), reachable directly
+    // from the home screen (top-right). Advanced settings moved into the
+    // Drawer only - see drawerContent below.
+    var showMoreSheet by remember { mutableStateOf(false) }
+    val moreSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val settingsEnabled = state is ConnectionState.Idle || state is ConnectionState.Error
 
     ModalNavigationDrawer(
@@ -178,6 +189,10 @@ fun HomeScreen(
 
                         Spacer(Modifier.height(16.dp))
 
+                        ChangelogRow()
+
+                        Spacer(Modifier.height(16.dp))
+
                         LanguageSwitcher()
                     }
                 }
@@ -195,6 +210,16 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
             ) {
+                val currentAnnouncement by AnnouncementManager.current.collectAsState()
+                currentAnnouncement?.let { announcement ->
+                    AnnouncementBanner(
+                        announcement = announcement,
+                        onDismiss = { AnnouncementManager.dismiss() },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
+
                 val appName = stringResource(R.string.app_name)
 
                 Text(
@@ -284,9 +309,10 @@ fun HomeScreen(
                 )
             }
 
-            // Advanced settings straight from the home screen.
+            // "More" panel straight from the home screen (theme, live graph,
+            // usage calendar). Advanced settings live in the Drawer only.
             IconButton(
-                onClick = { showAdvancedSheet = true },
+                onClick = { showMoreSheet = true },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .statusBarsPadding()
@@ -294,48 +320,37 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Tune,
-                    contentDescription = stringResource(R.string.advanced_open),
+                    contentDescription = stringResource(R.string.more_open),
                     tint = MaterialTheme.colorScheme.onBackground,
                 )
             }
         }
     }
 
-    if (showAdvancedSheet) {
+    if (showMoreSheet) {
+        val moreContext = LocalContext.current
         ModalBottomSheet(
-            onDismissRequest = { showAdvancedSheet = false },
-            sheetState = advancedSheetState,
+            onDismissRequest = { showMoreSheet = false },
+            sheetState = moreSheetState,
             containerColor = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier = Modifier
-                    // The advanced card is much taller than a phone screen.
-                    // Give the sheet a bounded viewport and scroll that viewport;
-                    // otherwise Compose measures the whole card and Material's
-                    // bottom sheet clips its lower controls behind the nav bar.
-                    .fillMaxHeight(0.92f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp)
                     .navigationBarsPadding()
                     .padding(bottom = 32.dp),
             ) {
-                // 1.2.2 UI-SPEED FIX: the advanced card is ~40 controls tall and
-                // used to be composed in the SAME frame the sheet starts its
-                // slide-in animation, so the sheet visibly stuttered on open.
-                // The first frame now shows the empty sheet (instant) and the
-                // controls are composed immediately afterwards.
-                var sheetReady by remember { mutableStateOf(false) }
-                LaunchedEffect(Unit) { sheetReady = true }
-                if (sheetReady) {
-                    AdvancedPanel(
-                        profile = profile,
-                        onProfileChange = onProfileChange,
-                        enabled = settingsEnabled,
-                        startExpanded = true,
-                    )
-                } else {
-                    Spacer(Modifier.height(320.dp))
-                }
+                MorePanel(
+                    themeMode = themeMode,
+                    onThemeModeChange = onThemeModeChange,
+                    onOpenLiveGraph = {
+                        moreContext.startActivity(Intent(moreContext, LiveGraphActivity::class.java))
+                    },
+                    onOpenUsageCalendar = {
+                        moreContext.startActivity(Intent(moreContext, UsageCalendarActivity::class.java))
+                    },
+                )
             }
         }
     }
@@ -374,6 +389,40 @@ fun HomeScreen(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun ChangelogRow() {
+    val context = LocalContext.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                context.startActivity(Intent(context, ChangelogActivity::class.java))
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.History,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = stringResource(R.string.changelog_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "2026-08-27-welcome",
+    "title": { "en": "Welcome", "fa": "خوش آمدید" },
+    "text": {
+      "en": "This is where in-app announcements will show up.",
+      "fa": "اطلاعیه‌های درون‌برنامه‌ای اینجا نمایش داده می‌شوند."
+    },
+    "url": null,
+    "minVersion": null,
+    "maxVersion": null
+  }
+]

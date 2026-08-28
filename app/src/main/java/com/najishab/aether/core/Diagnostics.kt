@@ -134,20 +134,20 @@ object Diagnostics {
         DiagnosticsLog.updateCheck(
             C_DNS,
             if (dnsOk) CheckState.PASS else CheckState.FAIL,
-            if (dnsOk) "exit ${info!!.ip} ${info.countryCode ?: "?"}" else "no response",
+            if (info != null) "exit ${info.ip} ${info.countryCode ?: "?"}" else "no response",
         )
         DiagnosticsLog.log(
             TAG,
             if (dnsOk) LogLevel.INFO else LogLevel.ERROR,
-            if (dnsOk) "dns+http OK, exit ip=${info!!.ip} cc=${info.countryCode}" else "dns+http FAILED",
+            if (info != null) "dns+http OK, exit ip=${info.ip} cc=${info.countryCode}" else "dns+http FAILED",
         )
 
         // The self-test already discovered the real exit IP through the tunnel.
         // Feed it straight into the badge so the UI never has to race a second,
         // independent lookup right after connect — the IP + flag is visible the
         // INSTANT the app reports Connected.
-        if (dnsOk) {
-            AetherController.offerTunnelIpInfo(IpEndpoint(info!!.ip, info.countryCode, true))
+        if (info != null) {
+            AetherController.offerTunnelIpInfo(IpEndpoint(info.ip, info.countryCode, true))
             AetherController.setIpLoading(false)
         }
 

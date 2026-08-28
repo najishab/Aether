@@ -29,6 +29,8 @@ import com.najishab.aether.core.NetProbe
 import com.najishab.aether.core.TunnelConfig
 import com.najishab.aether.data.OnboardingStore
 import com.najishab.aether.data.ProfileStore
+import com.najishab.aether.data.ThemeMode
+import com.najishab.aether.data.ThemeStore
 import com.najishab.aether.model.ConnectionProfile
 import com.najishab.aether.model.ConnectionState
 import com.najishab.aether.model.isBusy
@@ -44,6 +46,8 @@ class MainActivity : AppCompatActivity() {
 
     /** Feature merge: first-run onboarding gate. */
     private lateinit var onboardingStore: OnboardingStore
+
+    private lateinit var themeStore: ThemeStore
 
     // Holds the profile to connect with once VPN consent is granted.
     private var pendingProfile: ConnectionProfile? = null
@@ -83,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         profileStore = ProfileStore(applicationContext)
         onboardingStore = OnboardingStore(applicationContext)
+        themeStore = ThemeStore(applicationContext)
 
         // Load the persisted profile ONCE as the initial UI state; from then
         // on the in-memory state is the single source of truth for the UI.
@@ -119,7 +124,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-            AetherTheme {
+            val themeMode by themeStore.mode.collectAsState(initial = ThemeMode.DARK)
+            AetherTheme(themeMode = themeMode) {
                 // Feature merge: first-run onboarding gate. initial =
                 // true so upgrading users never see a flash of the pager; a
                 // fresh install flips to the pager as soon as the (fast)
@@ -220,6 +226,10 @@ class MainActivity : AppCompatActivity() {
                                 profileSaves.tryEmit(updated)
                             },
                             onToggleConnection = { toggleConnection(state) },
+                            themeMode = themeMode,
+                            onThemeModeChange = { newMode ->
+                                lifecycleScope.launch { themeStore.setMode(newMode) }
+                            },
                         )
                     }
                 }
