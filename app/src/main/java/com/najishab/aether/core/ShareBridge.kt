@@ -106,6 +106,8 @@ object ShareBridge {
      */
     private val uploadBytesCounter = AtomicLong(0L)
     private val downloadBytesCounter = AtomicLong(0L)
+    @Volatile
+    private var usageTracker: TunnelUsageTracker? = null
 
     /** Snapshot of the bridge's cumulative session traffic. */
     data class Traffic(val downloadBytes: Long, val uploadBytes: Long)
@@ -137,8 +139,8 @@ object ShareBridge {
      * actual work runs on a short-lived background thread and [active] flips
      * to true once both listeners are ready.
      */
-    fun start(localOnly: Boolean = false) {
-        thread(name = "share-start", isDaemon = true) { startSync(localOnly) }
+    fun start(localOnly: Boolean = false, tracker: TunnelUsageTracker? = null) {
+        thread(name = "share-start", isDaemon = true) { startSync(localOnly, tracker) }
     }
 
     /**
@@ -151,7 +153,7 @@ object ShareBridge {
      * proxy mode these listeners ARE the product, so a swallowed bind failure
      * meant "connected" with nothing listening on 1080/8118.
      */
-    fun startSync(localOnly: Boolean = false): Boolean = synchronized(this) {
+    fun startSync(localOnly: Boolean = false, tracker: TunnelUsageTracker? = null): Boolean = synchronized(this) {
         // Already up with a healthy listener? Nothing to do.
         if (_active.value && (socksServer?.isClosed == false || httpServer?.isClosed == false)) {
             return@synchronized true
@@ -163,6 +165,7 @@ object ShareBridge {
         closeServers()
         uploadBytesCounter.set(0L)
         downloadBytesCounter.set(0L)
+        usageTracker = tracker
 
         // SECURITY: when not explicitly sharing to the LAN, bind loopback
         // only so no other device on the network can use us as an open
@@ -207,6 +210,7 @@ object ShareBridge {
 
     /** Turn sharing off. Safe to call from any thread. */
     fun stop() {
+        usageTracker?.flush()
         _active.value = false
         val stopSession = synchronized(this) { ++session }
         thread(name = "share-stop", isDaemon = true) {
@@ -401,7 +405,7 @@ object ShareBridge {
                 append("Connection: close\r\n\r\n")
             }
             upstream.getOutputStream().writeAscii(rebuilt)
-            uploadBytesCounter.addAndGet(rebuilt.length.toLong())
+            addUpload(rebuilt.length.toLong())
             relay(client, upstream)
         } finally {
             runCatching { upstream.close() }
@@ -501,7 +505,7 @@ object ShareBridge {
                 if (n < 0) break
                 output.write(buffer, 0, n)
                 output.flush()
-                counter.addAndGet(n.toLong())
+                if (counter === uploadBytesCounter) addUpload(n.toLong()) else addDownload(n.toLong())
             }
         } catch (_: Exception) {
         } finally {
@@ -524,5 +528,15 @@ object ShareBridge {
     private fun OutputStream.writeAscii(s: String) {
         write(s.toByteArray(Charsets.ISO_8859_1))
         flush()
+    }
+
+    private fun addUpload(bytes: Long) {
+        uploadBytesCounter.addAndGet(bytes)
+        usageTracker?.addUpload(bytes)
+    }
+
+    private fun addDownload(bytes: Long) {
+        downloadBytesCounter.addAndGet(bytes)
+        usageTracker?.addDownload(bytes)
     }
 }

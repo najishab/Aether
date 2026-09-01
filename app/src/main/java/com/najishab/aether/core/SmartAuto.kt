@@ -141,7 +141,12 @@ object SmartAuto {
 
     // ---- Stage 3: turn the fingerprint into an ordered strategy ladder ----
 
-    fun buildPlan(user: ConnectionProfile, fp: NetworkFingerprint): List<AutoCandidate> {
+    fun buildPlan(
+        user: ConnectionProfile,
+        fp: NetworkFingerprint,
+        history: List<EndpointHistoryEntry> = emptyList(),
+        networkLabel: String? = null,
+    ): List<AutoCandidate> {
         // Prefer the ranges that actually answered, fastest first. Narrowing
         // the scan to live ranges is what makes each attempt FAST; the last
         // resort below still covers the full built-in ranges.
@@ -149,6 +154,32 @@ object SmartAuto {
         val bestRanges = reachable.take(2).joinToString(", ") { it.key }
         // NEVER override an endpoint the user pinned manually in Settings.
         val keepUserEndpoint = user.endpointMode != EndpointMode.AUTO
+
+        // SMART PRIORITY (Endpoint Health Check & History): endpoints that
+        // have already completed a full self-tested connection ON THIS SAME
+        // network get one cheap, fast attempt at the very front of the
+        // ladder before falling back to a fresh DPI-based strategy. Never
+        // overrides a user-pinned endpoint.
+        val knownGood = if (!keepUserEndpoint && networkLabel != null) {
+            history.asSequence()
+                .filter { it.network == networkLabel }
+                .sortedByDescending { it.lastSuccessMs }
+                .take(2)
+                .mapNotNull { entry ->
+                    val proto = runCatching { Protocol.valueOf(entry.protocol) }.getOrNull()
+                        ?: return@mapNotNull null
+                    val p = user.copy(
+                        protocol = proto,
+                        endpointMode = EndpointMode.MANUAL_PEER,
+                        manualPeer = entry.endpoint,
+                        scanMode = ScanMode.TURBO,
+                    )
+                    AutoCandidate(p, p.connectTimeoutMs(), "${proto.name} · known-good ${entry.endpoint} (history)")
+                }
+                .toList()
+        } else {
+            emptyList()
+        }
 
         fun cand(
             proto: Protocol,
@@ -224,8 +255,8 @@ object SmartAuto {
                 "· scan=${user.scanMode.name.lowercase()} (last resort)",
         )
 
-        val plan = (ladder + fallback).distinctBy { it.profile }
-        DiagnosticsLog.i(TAG, "Strategy ladder for ${fp.dpiClass} (${plan.size} steps):")
+        val plan = (knownGood + ladder + fallback).distinctBy { it.profile }
+        DiagnosticsLog.i(TAG, "Strategy ladder for ${fp.dpiClass} (${plan.size} steps, ${knownGood.size} from history):")
         plan.forEachIndexed { i, c -> DiagnosticsLog.i(TAG, "  ${i + 1}. ${c.label}") }
         return plan
     }

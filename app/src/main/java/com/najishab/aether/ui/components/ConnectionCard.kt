@@ -29,6 +29,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.automirrored.rounded.ShowChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -69,9 +72,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Locale
 import kotlin.math.sin
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import com.najishab.aether.R
 import com.najishab.aether.core.EngineMeta
+import com.najishab.aether.core.Formatters
 import com.najishab.aether.core.HevTunnel
 import com.najishab.aether.core.IpEndpoint
 import com.najishab.aether.core.NetProbe
@@ -93,10 +98,10 @@ import com.najishab.aether.ui.theme.CardTextPrimary
  *
  * Until 1.2.5 the area under the power button was four separate floating
  * surfaces - status text, traffic meter, IP badge and the protocol/endpoint/
- * latency row - each with its own colour, radius and padding. They read as
+ * latency row - each with its own color, radius and padding. They read as
  * clutter on a phone screen and nothing tied them together.
  *
- * This is one cohesive glassmorphic card instead, with a single surface colour
+ * This is one cohesive glass morphia card instead, with a single surface color
  * system and a fixed vertical hierarchy:
  *
  *   1. connection status  (large, red/green by state, with a quiet "tap to
@@ -106,7 +111,7 @@ import com.najishab.aether.ui.theme.CardTextPrimary
  *   4. speed strip        (live down/up rate and session totals)
  *   5. protocol strip     (Protocol | Endpoint | Latency, three equal columns)
  *
- * Nothing floats outside the block: every sub-section is a child container of
+ * Nothing floats outside the block: every subsection is a child container of
  * the same card, drawn from the same palette.
  *
  * COLOURS ARE DELIBERATELY NOT FROM MaterialTheme. The app runs Material You
@@ -119,7 +124,7 @@ import com.najishab.aether.ui.theme.CardTextPrimary
  *
  * CONNECTED-STATE ANIMATION. While the tunnel is up, the card edge carries a
  * light show: segments of green travel around the border and breathe in
- * length, width and intensity like an audio equaliser, so the card feels alive
+ * length, width and intensity like an audio equalizer, so the card feels alive
  * rather than blinking. Implementation notes, because this app has a history of
  * animations eating the frame budget (see AmbientBackground):
  *  - it is ONE closed path, measured once per size change and cached;
@@ -228,7 +233,7 @@ private fun TimerBlock(connectedSince: Long?, connected: Boolean) {
         if (connectedSince == null) return@LaunchedEffect
         while (true) {
             now = System.currentTimeMillis()
-            delay(1_000L)
+            delay(1.seconds)
         }
     }
 
@@ -276,15 +281,18 @@ private fun ServerIpPill(connected: Boolean, ipInfo: IpEndpoint?, ipLoading: Boo
 
     Row(
         modifier = Modifier
-            .background(color = CardSubSurface, shape = CircleShape)
-            .subEdge(CircleShape)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .fillMaxWidth(0.76f)
+            .background(brush = PILL_SURFACE, shape = CircleShape)
+            .subEdge(CircleShape, PILL_BORDER)
+            .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.Center,
     ) {
-        Text(text = label, fontSize = 12.sp, color = CardTextMuted)
+        Text(text = label, fontSize = 14.sp, color = CardTextMuted, maxLines = 1)
+        Spacer(Modifier.width(10.dp))
         if (ipInfo != null) {
-            Text(text = flag, fontSize = 15.sp)
+            Text(text = flag, fontSize = 17.sp)
+            Spacer(Modifier.width(10.dp))
         }
         AnimatedContent(
             targetState = value,
@@ -296,8 +304,10 @@ private fun ServerIpPill(connected: Boolean, ipInfo: IpEndpoint?, ipLoading: Boo
                 // BiDi: an address is LTR technical text even in the Persian UI.
                 style = MaterialTheme.typography.titleSmall.copy(textDirection = TextDirection.Ltr),
                 fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 color = CardTextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -312,14 +322,14 @@ private fun SpeedStrip(connectedSince: Long?, connected: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = CardSubSurface, shape = SUB_SHAPE)
-            .subEdge(SUB_SHAPE)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .background(brush = PANEL_SURFACE, shape = SUB_SHAPE)
+            .subEdge(SUB_SHAPE, PANEL_BORDER)
+            .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SpeedCell(
             icon = Icons.Rounded.ArrowDownward,
-            tint = AetherDanger,
+            tint = DOWNLOAD_ACCENT,
             label = stringResource(R.string.traffic_download),
             rate = stats.downRate,
             total = stats.downTotal,
@@ -360,22 +370,22 @@ private fun SpeedCell(
                 contentDescription = label,
                 tint = tint,
                 modifier = Modifier
-                    .padding(5.dp)
-                    .size(15.dp),
+                    .padding(7.dp)
+                    .size(18.dp),
             )
         }
         Column(modifier = Modifier.padding(start = 9.dp)) {
             Text(
-                text = formatRate(rate),
+                text = Formatters.formatRate(rate),
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
+                fontSize = 16.sp,
                 color = CardTextPrimary,
                 maxLines = 1,
             )
             Text(
-                text = stringResource(R.string.traffic_total, formatBytes(total)),
-                fontSize = 10.sp,
+                text = stringResource(R.string.traffic_total, Formatters.formatBytes(total)),
+                fontSize = 12.sp,
                 color = CardTextMuted,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -392,11 +402,11 @@ private fun ProtocolStrip(connected: Boolean) {
     val ping by PingMonitor.state.collectAsState()
 
     // Live latency, exactly like the desktop edition: one cheap TCP handshake
-    // through the tunnel every few seconds, serialised by PingMonitor.
+    // through the tunnel every few seconds, serialized by PingMonitor.
     LaunchedEffect(connected) {
         while (connected) {
             PingMonitor.pingOnce(viaTunnel = true)
-            delay(LATENCY_REFRESH_MS)
+            delay(LATENCY_REFRESH)
         }
     }
 
@@ -413,28 +423,35 @@ private fun ProtocolStrip(connected: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = CardSubSurface, shape = SUB_SHAPE)
-            .subEdge(SUB_SHAPE)
-            .padding(horizontal = 6.dp, vertical = 10.dp),
+            .background(brush = PANEL_SURFACE, shape = SUB_SHAPE)
+            .subEdge(SUB_SHAPE, PANEL_BORDER)
+            .padding(horizontal = 8.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MetaCell(stringResource(R.string.meta_protocol), protocol, Modifier.weight(1f))
+        MetaCell(Icons.Rounded.Shield, stringResource(R.string.meta_protocol), protocol, Modifier.weight(1f))
         CellDivider()
-        MetaCell(stringResource(R.string.meta_endpoint), endpoint, Modifier.weight(1f))
+        MetaCell(Icons.Rounded.LocationOn, stringResource(R.string.meta_endpoint), endpoint, Modifier.weight(1f))
         CellDivider()
-        MetaCell(stringResource(R.string.meta_latency), latency, Modifier.weight(1f))
+        MetaCell(Icons.AutoMirrored.Rounded.ShowChart, stringResource(R.string.meta_latency), latency, Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun MetaCell(label: String, value: String, modifier: Modifier = Modifier) {
+private fun MetaCell(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = META_ICON,
+            modifier = Modifier.size(27.dp),
+        )
+        Spacer(Modifier.height(6.dp))
         Text(
             text = label,
-            fontSize = 10.sp,
+            fontSize = 12.sp,
             letterSpacing = 0.6.sp,
             color = CardTextMuted,
             maxLines = 1,
@@ -444,7 +461,7 @@ private fun MetaCell(label: String, value: String, modifier: Modifier = Modifier
         Spacer(Modifier.height(3.dp))
         Text(
             text = value,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             fontFamily = FontFamily.Monospace,
             color = CardTextPrimary,
@@ -461,7 +478,7 @@ private fun CellDivider() {
     Box(
         Modifier
             .width(1.dp)
-            .height(28.dp)
+            .height(36.dp)
             .background(DIVIDER),
     )
 }
@@ -516,7 +533,7 @@ private fun rememberTrafficStats(connectedSince: Long?, connected: Boolean): Tra
                 lastUp = up
                 lastAt = at
             }
-            delay(1_000L)
+            delay(1.seconds)
         }
     }
 
@@ -555,7 +572,7 @@ private fun rememberGlowPulse(): GlowPulse {
 }
 
 /**
- * One equaliser band: where it sits on the perimeter, how long it is, and which
+ * One equalizer band: where it sits on the perimeter, how long it is, and which
  * harmonic of the travel phase drives its intensity. The harmonics are WHOLE
  * numbers on purpose - a fractional one would jump when the phase wraps from 1
  * back to 0 and the whole edge would visibly stutter once per cycle.
@@ -580,7 +597,7 @@ private val GLOW_BANDS = listOf(
 
 /**
  * The card edge: a soft inner glow, a hairline teal border, and - while
- * connected - the travelling equaliser light.
+ * connected - the traveling equalizer light.
  */
 private fun Modifier.glassEdge(accent: Color, pulse: GlowPulse?): Modifier = drawWithCache {
     val hairline = 1.dp.toPx()
@@ -655,7 +672,7 @@ private fun PathMeasure.appendSegment(dst: Path, start: Float, length: Float, pe
 }
 
 /** The 1px low-opacity teal rim shared by every sub-container in the card. */
-private fun Modifier.subEdge(shape: CornerBasedShape): Modifier = drawWithCache {
+private fun Modifier.subEdge(shape: CornerBasedShape, color: Color = SUB_BORDER): Modifier = drawWithCache {
     val hairline = 1.dp.toPx()
     val inset = hairline / 2f
     val radius = shape.topStart.toPx(size, this)
@@ -667,31 +684,30 @@ private fun Modifier.subEdge(shape: CornerBasedShape): Modifier = drawWithCache 
             ),
         )
     }
-    onDrawBehind { drawPath(outline, color = SUB_BORDER, style = Stroke(hairline)) }
+    onDrawBehind { drawPath(outline, color = color, style = Stroke(hairline)) }
 }
 
 // ---------------------------------------------------------------- helpers
 
-private fun formatBytes(v: Long): String {
-    if (v < 1024L) return "$v B"
-    val kb = v / 1024.0
-    if (kb < 1024.0) return String.format(Locale.US, "%.1f KB", kb)
-    val mb = kb / 1024.0
-    if (mb < 1024.0) return String.format(Locale.US, "%.1f MB", mb)
-    return String.format(Locale.US, "%.2f GB", mb / 1024.0)
-}
-
-private fun formatRate(v: Long): String = formatBytes(v) + "/s"
-
 private val CARD_RADIUS = 26.dp
 private val CARD_SHAPE = RoundedCornerShape(CARD_RADIUS)
 private val SUB_SHAPE = RoundedCornerShape(18.dp)
+private val PILL_SURFACE = Brush.horizontalGradient(
+    listOf(Color(0xD51B3D7A), Color(0xE8223E78), Color(0xD51A3569)),
+)
+private val PANEL_SURFACE = Brush.verticalGradient(
+    listOf(Color(0xEC203D78), Color(0xF0173264)),
+)
 // Sub-container hairline stays brand blue regardless of state - only the
-// status text, the power button and the animated card edge switch colour.
+// status text, the power button and the animated card edge switch color.
 private val SUB_BORDER = AetherBlue.copy(alpha = 0.12f)
+private val PILL_BORDER = AetherBlue.copy(alpha = 0.18f)
+private val PANEL_BORDER = AetherBlue.copy(alpha = 0.20f)
 private val DIVIDER = Color(0x1FFFFFFF)
+private val DOWNLOAD_ACCENT = Color(0xFFFF5D84)
+private val META_ICON = Color(0xCCD7DEEA)
 private val IDLE_ACCENT = AetherDanger
 private val ERROR_ACCENT = AetherDanger
 private const val GLOW_TRAVEL_MS = 5_200
-private const val LATENCY_REFRESH_MS = 4_000L
+private val LATENCY_REFRESH = 4.seconds
 private const val TWO_PI = 6.2831855f

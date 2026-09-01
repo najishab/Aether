@@ -45,8 +45,8 @@ android {
         applicationId = "com.najishab.aether"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.1.1"
 
         ndk {
             // We ship arm64 (primary) and arm builds.
@@ -171,7 +171,10 @@ if (!hasReleaseKeystore && !useCiKeystore) {
 // calls. This file is the single source of truth CI already writes/uses as
 // the GitHub release body for every release - copying it here (instead of
 // hand-maintaining a second copy) means it can never drift out of sync.
-val copyReleaseNotes by tasks.registering(Copy::class) {
+val copyReleaseNotes = tasks.register<Copy>("copyReleaseNotes") {
+    group = "documentation"
+    description = "Copies the release notes markdown file into the assets directory."
+
     from(rootProject.file(".github/release-notes.md"))
     into(layout.projectDirectory.dir("src/main/assets"))
 }
@@ -180,10 +183,15 @@ tasks.named("preBuild") { dependsOn(copyReleaseNotes) }
 androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
-            val abiName = output.filters.find { it.filterType == ABI }?.identifier
+            // ۱. محاسبه versionCode بر اساس ABI
+            val abiName = output.filters.find { it.filterType == ABI }?.identifier ?: "universal"
             val base = (android.defaultConfig.versionCode ?: 1) * 1000
-            val offset = abiCodes[abiName ?: "universal"] ?: 0
+            val offset = abiCodes[abiName] ?: 0
             output.versionCode.set(base + offset)
+            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                val vName = output.versionName.get()
+                output.outputFileName.set("NajiAether-$abiName-v$vName.apk")
+            }
         }
     }
 }
@@ -198,6 +206,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-service:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")

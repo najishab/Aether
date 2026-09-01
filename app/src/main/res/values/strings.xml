@@ -5,6 +5,10 @@
 
     <string name="advanced">Advanced settings</string>
 
+    <string name="endpoint_history_title">Endpoint history</string>
+    <string name="endpoint_history_subtitle">Recent healthy endpoints</string>
+    <string name="endpoint_history_empty">No successful endpoints yet — they\'ll appear here after you connect.</string>
+
     <string name="protocol">Protocol</string>
     <string name="protocol_auto">Smart</string>
     <string name="protocol_masque">MASQUE</string>
@@ -210,6 +214,7 @@
     <!-- Feature merge: home-screen widget, onboarding, ping, crash report -->
     <string name="widget_desc">Connect or disconnect NajiAether with one tap</string>
     <string name="widget_toggle_desc">Toggle connection</string>
+    <string name="widget_large_desc">Live connection details: IP, latency, duration and speed</string>
     <string name="ping_label">Ping</string>
     <string name="ping_measuring">Measuring…</string>
     <string name="ping_unavailable">N/A</string>
@@ -217,6 +222,8 @@
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get started</string>
+    <string name="onboarding_language_title">انتخاب زبان / Choose Language</string>
+    <string name="onboarding_language_hint">You can change this anytime from the app menu</string>
     <string name="onboarding_title_1">Welcome to NajiAether</string>
     <string name="onboarding_body_1">A fast, secure tunnel that beats censorship. One tap connects you through MASQUE, WireGuard or Gool.</string>
     <string name="onboarding_title_2">Smart protocol selection</string>
@@ -291,7 +298,18 @@
     <string name="live_graph_subtitle">Real-time download/upload speed</string>
     <string name="live_graph_session_usage">Usage during the last connection: %1$s</string>
     <string name="usage_calendar_title">Usage calendar</string>
-    <string name="usage_calendar_subtitle">Daily data usage history</string>
+    <string name="usage_calendar_subtitle">Tunnel-only usage history</string>
+    <string name="usage_today">Today</string>
+    <string name="usage_last_7_total">This week</string>
+    <string name="usage_daily_average">Daily average</string>
+    <string name="usage_highest_day">Highest day</string>
+    <string name="usage_calendar_approx_sessions">Approximate sessions</string>
+    <string name="usage_mode_total">This month</string>
+    <string name="usage_mode_download">Download</string>
+    <string name="usage_mode_upload">Upload</string>
+    <string name="usage_mode_sessions">Sessions</string>
+    <string name="usage_mode_last_7_days">This week</string>
+    <string name="usage_sessions_value">%1$d · %2$s</string>
     <string name="changelog_title">Changelog</string>
     <string name="changelog_subtitle">What changed in each version</string>
     <string name="changelog_checking">Checking for a newer release…</string>
@@ -302,4 +320,17 @@
     <!-- In-app announcements -->
     <string name="announcement_dismiss">Dismiss</string>
     <string name="announcement_learn_more">Learn more</string>
+
+    <!-- Battery optimization exemption (asked once, after first successful connection) -->
+    <string name="battery_opt_title">Keep the tunnel stable in the background</string>
+    <string name="battery_opt_message">Some phones aggressively kill background apps to save battery, which can silently drop your VPN connection. Allowing NajiAether to ignore battery optimizations keeps the tunnel alive. You can change this anytime in Advanced settings.</string>
+    <string name="battery_opt_allow">Allow</string>
+    <string name="battery_opt_later">Not now</string>
+    <string name="battery_opt_row_title">Background battery optimization</string>
+    <string name="battery_opt_row_desc_on">NajiAether is exempted — the tunnel can stay alive in the background</string>
+    <string name="battery_opt_row_desc_off">The system may kill the tunnel in the background to save battery</string>
+
+    <!-- Widget names shown in the system widget picker -->
+    <string name="widget_simple_label">NajiAether Simple</string>
+    <string name="widget_advanced_label">NajiAether Advanced</string>
 </resources>

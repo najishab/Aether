@@ -34,6 +34,10 @@ native/.core-sync-state
 keystore.properties
 release.keystore
 
+# Google Services
+google-services.json
+*.json.bak
+
 # Extra excludes
 .github/ci-keystore.jks.b64
 .kotlin/

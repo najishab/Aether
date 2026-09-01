@@ -59,6 +59,8 @@ import com.najishab.aether.ui.components.AppPickerDialog
 import com.najishab.aether.ui.components.DropdownSelector
 import com.najishab.aether.ui.components.LtrOutlinedTextField
 import com.najishab.aether.ui.components.SegmentedSelector
+import com.najishab.aether.ui.components.batteryOptimizationIntent
+import com.najishab.aether.ui.components.isIgnoringBatteryOptimizations
 
 /**
  * Collapsible "Advanced" card exposing the full engine v1.3.0 feature set:
@@ -544,6 +546,7 @@ fun AdvancedPanel(
                         enabled = enabled,
                         onChange = { onProfileChange(profile.copy(ipv6LeakProtection = it)) },
                     )
+                    BatteryOptRow()
                     ToggleRow(
                         title = stringResource(R.string.reprovision_title),
                         description = stringResource(R.string.reprovision_desc),
@@ -688,6 +691,41 @@ fun AdvancedPanel(
                 showBlockedPicker = false
             },
         )
+    }
+}
+
+/**
+ * Row that opens the system "ignore battery optimizations" screen for this
+ * app, so the user can grant (or later revoke, via system settings) the
+ * exemption offered automatically after their first successful connection.
+ */
+@Composable
+private fun BatteryOptRow() {
+    val context = LocalContext.current
+    val exempted = remember { mutableStateOf(isIgnoringBatteryOptimizations(context)) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { context.startActivity(batteryOptimizationIntent(context)) }
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.battery_opt_row_title),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = stringResource(
+                    if (exempted.value) R.string.battery_opt_row_desc_on
+                    else R.string.battery_opt_row_desc_off,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 

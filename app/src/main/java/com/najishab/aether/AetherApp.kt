@@ -9,11 +9,9 @@ import com.najishab.aether.core.AetherAnalytics
 import com.najishab.aether.core.AnnouncementManager
 import com.najishab.aether.core.DiagnosticsLog
 import com.najishab.aether.core.TrafficMonitor
-import com.najishab.aether.data.UsageStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -30,22 +28,10 @@ class AetherApp : Application() {
 
         AetherAnalytics.init(this)
 
-        // Usage Calendar (More panel): periodically checkpoints device-wide
-        // TrafficStats into UsageStore so today's bucket keeps accruing while
-        // the process is alive. See UsageStore's kdoc for what it does and
-        // does not measure.
-        val usageStore = UsageStore(this)
-        appScope.launch {
-            while (true) {
-                runCatching { usageStore.recordTick() }
-                delay(USAGE_TICK_MS)
-            }
-        }
-
         // Live Graph (More panel): sampled continuously from process start so
         // its history and per-connection usage total survive the screen being
         // closed and reopened - see TrafficMonitor's kdoc.
-        TrafficMonitor.start(appScope)
+        TrafficMonitor.start(appScope, this)
 
         // In-app announcements: periodic poll of a small JSON file on GitHub
         // (docs/announcements.json) - see AnnouncementManager's kdoc for why
@@ -103,7 +89,5 @@ class AetherApp : Application() {
 
         /** Standalone crash report consumed by [CrashReportActivity]. */
         const val CRASH_FILE = "last_crash.txt"
-
-        private const val USAGE_TICK_MS = 60_000L
     }
 }

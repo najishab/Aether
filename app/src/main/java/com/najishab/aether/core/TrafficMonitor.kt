@@ -1,5 +1,6 @@
 package com.najishab.aether.core
 
+import android.content.Context
 import android.net.TrafficStats
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.najishab.aether.model.isConnected
+import com.najishab.aether.widget.AetherWidgetLargeProvider
 
 /**
  * App-wide, lifecycle-independent traffic sampler for the Live Graph screen.
@@ -50,14 +52,24 @@ object TrafficMonitor {
 
     private var started = false
 
-    fun start(scope: CoroutineScope) {
+    /**
+     * Roadmap phase 1 (option B): the large widget has no polling of its own
+     * — it piggybacks on this loop, which already runs every second whether
+     * or not any widget is placed, instead of spinning up a second wake
+     * source (WorkManager/AlarmManager) just for the widget.
+     */
+    private const val WIDGET_REFRESH_CYCLES = 30 // ~30s at a 1s sample interval
+
+    fun start(scope: CoroutineScope, context: Context? = null) {
         if (started) return
         started = true
+        val appContext = context?.applicationContext
         scope.launch {
             var lastRx = TrafficStats.getTotalRxBytes()
             var lastTx = TrafficStats.getTotalTxBytes()
             var lastTime = System.currentTimeMillis()
             var wasConnected = false
+            var widgetTick = 0
 
             while (true) {
                 delay(SAMPLE_INTERVAL_MS)
@@ -85,6 +97,22 @@ object TrafficMonitor {
                     _sessionBytes.value += deltaRx + deltaTx
                 }
                 wasConnected = isConnected
+
+                // Widget refresh (roadmap phase 1/6): only while connected, and
+                // only every WIDGET_REFRESH_CYCLES samples, so a placed widget
+                // costs one extra repaint + one cheap TCP latency probe per
+                // ~30s instead of a dedicated wake source. updateAllWidgets()
+                // itself is a no-op when nothing is placed.
+                if (isConnected && appContext != null) {
+                    widgetTick++
+                    if (widgetTick >= WIDGET_REFRESH_CYCLES) {
+                        widgetTick = 0
+                        AetherWidgetLargeProvider.updateAllWidgets(appContext)
+                        launch { PingMonitor.pingOnce(viaTunnel = true) }
+                    }
+                } else {
+                    widgetTick = 0
+                }
 
                 lastRx = rx
                 lastTx = tx

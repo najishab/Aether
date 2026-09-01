@@ -72,7 +72,8 @@ class SocksTunBridge(
     private val socksPort: Int = 1819,
     private val mtu: Int = 1280,
     private val blockedPackagesProvider: () -> Set<String>,
-    private val routingEngine: RoutingEngine
+    private val routingEngine: RoutingEngine,
+    private val usageTracker: TunnelUsageTracker? = null,
 ) {
     data class Stats(val txBytes: Long = 0, val rxBytes: Long = 0)
 
@@ -117,6 +118,7 @@ class SocksTunBridge(
                     val packet = tunOutputQueue.poll(500, TimeUnit.MILLISECONDS) ?: continue
                     fos.write(packet)
                     rxBytes.addAndGet(packet.size.toLong())
+                    usageTracker?.addDownload(packet.size.toLong())
                 } catch (_: InterruptedException) {
                     break
                 } catch (e: Exception) {
@@ -138,6 +140,7 @@ class SocksTunBridge(
                     val n = fis.read(buffer)
                     if (n <= 0) continue
                     txBytes.addAndGet(n.toLong())
+                    usageTracker?.addUpload(n.toLong())
                     processPacket(buffer, n)
                 } catch (e: Exception) {
                     if (isRunning.get()) LogRepository.w("TUN read error: ${e.message}")
@@ -159,6 +162,7 @@ class SocksTunBridge(
         executor.shutdownNow()
         readThread?.interrupt()
         writeThread?.interrupt()
+        usageTracker?.flush()
     }
 
     fun getStats(): Stats = Stats(txBytes.get(), rxBytes.get())

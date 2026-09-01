@@ -27,6 +27,7 @@ import com.najishab.aether.core.AetherController
 import com.najishab.aether.core.IpEndpoint
 import com.najishab.aether.core.NetProbe
 import com.najishab.aether.core.TunnelConfig
+import com.najishab.aether.data.BatteryOptStore
 import com.najishab.aether.data.OnboardingStore
 import com.najishab.aether.data.ProfileStore
 import com.najishab.aether.data.ThemeMode
@@ -37,7 +38,14 @@ import com.najishab.aether.model.isBusy
 import com.najishab.aether.model.isConnected
 import com.najishab.aether.ui.HomeScreen
 import com.najishab.aether.ui.OnboardingScreen
+import com.najishab.aether.ui.components.BatteryOptimizationDialog
+import com.najishab.aether.ui.components.batteryOptimizationIntent
+import com.najishab.aether.ui.components.isIgnoringBatteryOptimizations
 import com.najishab.aether.ui.theme.AetherTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -48,6 +56,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var onboardingStore: OnboardingStore
 
     private lateinit var themeStore: ThemeStore
+
+    /** Battery optimization exemption prompt, asked once after first successful connect. */
+    private lateinit var batteryOptStore: BatteryOptStore
 
     // Holds the profile to connect with once VPN consent is granted.
     private var pendingProfile: ConnectionProfile? = null
@@ -88,6 +99,7 @@ class MainActivity : AppCompatActivity() {
         profileStore = ProfileStore(applicationContext)
         onboardingStore = OnboardingStore(applicationContext)
         themeStore = ThemeStore(applicationContext)
+        batteryOptStore = BatteryOptStore(applicationContext)
 
         // Load the persisted profile ONCE as the initial UI state; from then
         // on the in-memory state is the single source of truth for the UI.
@@ -138,6 +150,14 @@ class MainActivity : AppCompatActivity() {
                 val connectedSince by AetherController.connectedSince.collectAsState()
                 val ipInfo by AetherController.ipInfo.collectAsState()
                 val ipLoading by AetherController.ipLoading.collectAsState()
+
+                // Battery optimization exemption: asked once, the first time
+                // the user reaches a successful connection (see phase-keyed
+                // LaunchedEffect below). Re-openable anytime via Advanced
+                // settings, so "asked" only gates the automatic first prompt.
+                val batteryOptAsked by batteryOptStore.asked.collectAsState(initial = true)
+                var showBatteryOptDialog by remember { mutableStateOf(false) }
+                val batteryOptContext = LocalContext.current
 
                 // Refresh the shown IP whenever the connection phase flips:
                 //  - connected  -> exit server IP (through the SOCKS proxy) + flag
@@ -202,6 +222,30 @@ class MainActivity : AppCompatActivity() {
                             AetherController.setIpLoading(false)
                         }
                     }
+                }
+
+                // First successful connection this run + never asked before +
+                // not already exempted -> show the explainer dialog once.
+                // Marked "asked" immediately so it can never fire twice, even
+                // if the user backgrounds the app before answering.
+                LaunchedEffect(phase, batteryOptAsked) {
+                    if (phase == "connected" &&
+                        !batteryOptAsked &&
+                        !isIgnoringBatteryOptimizations(batteryOptContext)
+                    ) {
+                        showBatteryOptDialog = true
+                        batteryOptStore.markAsked()
+                    }
+                }
+
+                if (showBatteryOptDialog) {
+                    BatteryOptimizationDialog(
+                        onAllow = {
+                            showBatteryOptDialog = false
+                            batteryOptContext.startActivity(batteryOptimizationIntent(batteryOptContext))
+                        },
+                        onDismiss = { showBatteryOptDialog = false },
+                    )
                 }
 
                 Surface(modifier = Modifier.fillMaxSize()) {

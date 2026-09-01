@@ -8,4 +8,5 @@
     android:initialLayout="@layout/aether_widget"
     android:resizeMode="horizontal"
     android:widgetCategory="home_screen"
+    android:previewImage="@drawable/widget_preview_simple"
     android:description="@string/widget_desc" />

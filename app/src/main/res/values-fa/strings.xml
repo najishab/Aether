@@ -4,6 +4,9 @@
     <string name="tagline">آزادی، در یک لمس</string>
 
     <string name="advanced">تنظیمات پیشرفته</string>
+    <string name="endpoint_history_title">تاریخچه اندپوینت‌ها</string>
+    <string name="endpoint_history_subtitle">اندپوینت‌های سالم اخیر</string>
+    <string name="endpoint_history_empty">هنوز اندپوینت موفقی ثبت نشده است؛ بعد از اتصال اینجا نمایش داده می‌شود.</string>
 
     <string name="protocol">پروتکل</string>
     <string name="protocol_auto">هوشمند</string>
@@ -209,6 +212,7 @@
     <!-- Feature merge: widget, onboarding, ping, crash report -->
     <string name="widget_desc">اتصال یا قطع Aether با یک لمس</string>
     <string name="widget_toggle_desc">تغییر وضعیت اتصال</string>
+    <string name="widget_large_desc">جزئیات زنده‌ی اتصال: آی‌پی، تأخیر، مدت و سرعت</string>
     <string name="ping_label">پینگ</string>
     <string name="ping_measuring">در حال اندازه‌گیری…</string>
     <string name="ping_unavailable">ناموجود</string>
@@ -216,6 +220,8 @@
     <string name="onboarding_skip">رد کردن</string>
     <string name="onboarding_next">بعدی</string>
     <string name="onboarding_start">شروع</string>
+    <string name="onboarding_language_title">انتخاب زبان / Choose Language</string>
+    <string name="onboarding_language_hint">می‌توانید هر زمان از منوی برنامه آن را تغییر دهید</string>
     <string name="onboarding_title_1">به Aether خوش آمدید</string>
     <string name="onboarding_body_1">تانل سریع و امن برای عبور از سانسور. با یک لمس از طریق MASQUE، WireGuard یا Gool متصل شوید.</string>
     <string name="onboarding_title_2">انتخاب هوشمند پروتکل</string>
@@ -284,7 +290,18 @@
     <string name="live_graph_subtitle">سرعت لحظه‌ای دانلود و آپلود</string>
     <string name="live_graph_session_usage">مصرف در آخرین اتصال: %1$s</string>
     <string name="usage_calendar_title">تقویم مصرف</string>
-    <string name="usage_calendar_subtitle">تاریخچهٔ مصرف روزانه</string>
+    <string name="usage_calendar_subtitle">تاریخچهٔ مصرف فقط داخل تونل</string>
+    <string name="usage_today">امروز</string>
+    <string name="usage_last_7_total">این هفته</string>
+    <string name="usage_daily_average">میانگین روزانه</string>
+    <string name="usage_highest_day">بیشترین روز</string>
+    <string name="usage_calendar_approx_sessions">نشست‌های تقریبی</string>
+    <string name="usage_mode_total">این ماه</string>
+    <string name="usage_mode_download">دانلود</string>
+    <string name="usage_mode_upload">آپلود</string>
+    <string name="usage_mode_sessions">نشست‌ها</string>
+    <string name="usage_mode_last_7_days">این هفته</string>
+    <string name="usage_sessions_value">%1$d · %2$s</string>
     <string name="changelog_title">تغییرات نسخه</string>
     <string name="changelog_subtitle">چه چیزی در هر نسخه تغییر کرده</string>
     <string name="changelog_checking">در حال بررسی نسخهٔ تازه‌تر…</string>
@@ -300,4 +317,17 @@
     <!-- اطلاعیه‌های درون‌برنامه‌ای -->
     <string name="announcement_dismiss">بستن</string>
     <string name="announcement_learn_more">بیشتر بدانید</string>
+
+    <!-- بهینه‌سازی باتری (فقط یک‌بار پس از اولین اتصال موفق پرسیده می‌شود) -->
+    <string name="battery_opt_title">پایداری تونل در پس‌زمینه</string>
+    <string name="battery_opt_message">برخی گوشی‌ها برای صرفه‌جویی در باتری، برنامه‌های پس‌زمینه را به‌شدت می‌بندند که می‌تواند اتصال VPN را بی‌صدا قطع کند. با اجازه دادن به ناجی ایثر برای نادیده گرفتن بهینه‌سازی باتری، تونل زنده می‌ماند. هر زمان می‌توانید این را از تنظیمات پیشرفته تغییر دهید.</string>
+    <string name="battery_opt_allow">اجازه بده</string>
+    <string name="battery_opt_later">بعداً</string>
+    <string name="battery_opt_row_title">بهینه‌سازی باتری در پس‌زمینه</string>
+    <string name="battery_opt_row_desc_on">ناجی ایثر معاف است — تونل می‌تواند در پس‌زمینه زنده بماند</string>
+    <string name="battery_opt_row_desc_off">سیستم ممکن است برای صرفه‌جویی در باتری، تونل را در پس‌زمینه ببندد</string>
+
+    <!-- نام ویجت‌ها در لیست انتخاب ویجت سیستم -->
+    <string name="widget_simple_label">ناجی ایثر ساده</string>
+    <string name="widget_advanced_label">ناجی ایثر پیشرفته</string>
 </resources>

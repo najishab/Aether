@@ -3,6 +3,7 @@ package com.najishab.aether.core
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
+import android.util.Base64
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,7 @@ import com.najishab.aether.model.Noize
 import com.najishab.aether.model.Protocol
 import com.najishab.aether.model.ScanMode
 import com.najishab.aether.model.SplitMode
+import com.najishab.aether.model.TeamAuth
 import com.najishab.aether.vpn.AetherVpnService
 
 /**
@@ -121,8 +123,8 @@ object ProfileCodec {
         add("share=${p.lanShare}")
         add("noize=${p.noize.name}")
         add("endpoint=${p.endpointMode.name}")
-        add("peer=${p.manualPeer}")
-        add("range=${p.manualRange}")
+        addString("peer", p.manualPeer)
+        addString("range", p.manualRange)
         add("keepalive=${p.keepalive}")
         add("fragment=${p.fragment}")
         add("ech=${p.ech}")
@@ -130,21 +132,37 @@ object ProfileCodec {
         add("proxy=${p.proxyMode}")
         add("split=${p.splitMode.name}")
         add("splitApps=${p.splitApps.joinToString(",")}")
+        // Added in 1.2.3 (engine v1.5.0)
+        addString("dns", p.dnsServers)
+        addString("team", p.team)
+        add("teamAuth=${p.teamAuth.name}")
+        addString("accessId", p.accessClientId)
+        addString("accessSecret", p.accessClientSecret)
+        addString("accessEmail", p.accessEmail)
+        addString("accessToken", p.accessToken)
+        add("gateway=${p.gateway}")
+        addString("routeBlock", p.routeBlock)
+        addString("routeDirect", p.routeDirect)
         // Added in 1.2.4 (feature parity)
         add("kill=${p.killSwitch}")
         add("strictKill=${p.strictKillSwitch}")
         add("v6leak=${p.ipv6LeakProtection}")
         add("smartRe=${p.smartReconnect}")
         add("reLimit=${p.reconnectRetryLimit}")
-        add("fSize=${p.fragmentSize}")
-        add("fDelay=${p.fragmentDelay}")
+        addString("fSize", p.fragmentSize)
+        addString("fDelay", p.fragmentDelay)
         add("noDataCheck=${p.noDataCheck}")
-        add("tlsGroups=${p.tlsGroups}")
+        addString("tlsGroups", p.tlsGroups)
         add("valSecs=${p.validateSecs}")
         add("recSecs=${p.reconnectSecs}")
         add("noProfRetry=${p.noProfileRetry}")
         add("coreLog=${p.coreLogLevel.name}")
         add("blockedApps=${p.blockedApps.joinToString(",")}")
+        // Added in 1.2.6 (engine v1.7.0)
+        addString("upstreamProxy", p.upstreamProxy)
+        add("routeSniff=${p.routeSniff}")
+        add("routeSniffMs=${p.routeSniffMs}")
+        add("autoReprovision=${p.autoReprovision}")
     }.joinToString("\n")
 
     fun decode(raw: String?): ConnectionProfile {
@@ -170,8 +188,8 @@ object ProfileCodec {
                 lanShare = map["share"]?.toBooleanStrictOrNull() ?: d.lanShare,
                 noize = map["noize"]?.let { enumOr<Noize>(it) } ?: d.noize,
                 endpointMode = map["endpoint"]?.let { enumOr<EndpointMode>(it) } ?: d.endpointMode,
-                manualPeer = map["peer"] ?: d.manualPeer,
-                manualRange = map["range"] ?: d.manualRange,
+                manualPeer = map.string("peer", d.manualPeer),
+                manualRange = map.string("range", d.manualRange),
                 keepalive = map["keepalive"]?.toIntOrNull() ?: d.keepalive,
                 fragment = map["fragment"]?.toBooleanStrictOrNull() ?: d.fragment,
                 ech = map["ech"]?.toBooleanStrictOrNull() ?: d.ech,
@@ -180,21 +198,35 @@ object ProfileCodec {
                 splitMode = map["split"]?.let { enumOr<SplitMode>(it) } ?: d.splitMode,
                 splitApps = map["splitApps"]?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
                     ?: d.splitApps,
+                dnsServers = map.string("dns", d.dnsServers),
+                team = map.string("team", d.team),
+                teamAuth = map["teamAuth"]?.let { enumOr<TeamAuth>(it) } ?: d.teamAuth,
+                accessClientId = map.string("accessId", d.accessClientId),
+                accessClientSecret = map.string("accessSecret", d.accessClientSecret),
+                accessEmail = map.string("accessEmail", d.accessEmail),
+                accessToken = map.string("accessToken", d.accessToken),
+                gateway = map["gateway"]?.toBooleanStrictOrNull() ?: d.gateway,
+                routeBlock = map.string("routeBlock", d.routeBlock),
+                routeDirect = map.string("routeDirect", d.routeDirect),
                 killSwitch = map["kill"]?.toBooleanStrictOrNull() ?: d.killSwitch,
                 strictKillSwitch = map["strictKill"]?.toBooleanStrictOrNull() ?: d.strictKillSwitch,
                 ipv6LeakProtection = map["v6leak"]?.toBooleanStrictOrNull() ?: d.ipv6LeakProtection,
                 smartReconnect = map["smartRe"]?.toBooleanStrictOrNull() ?: d.smartReconnect,
                 reconnectRetryLimit = map["reLimit"]?.toIntOrNull() ?: d.reconnectRetryLimit,
-                fragmentSize = map["fSize"] ?: d.fragmentSize,
-                fragmentDelay = map["fDelay"] ?: d.fragmentDelay,
+                fragmentSize = map.string("fSize", d.fragmentSize),
+                fragmentDelay = map.string("fDelay", d.fragmentDelay),
                 noDataCheck = map["noDataCheck"]?.toBooleanStrictOrNull() ?: d.noDataCheck,
-                tlsGroups = map["tlsGroups"] ?: d.tlsGroups,
+                tlsGroups = map.string("tlsGroups", d.tlsGroups),
                 validateSecs = map["valSecs"]?.toIntOrNull() ?: d.validateSecs,
                 reconnectSecs = map["recSecs"]?.toIntOrNull() ?: d.reconnectSecs,
                 noProfileRetry = map["noProfRetry"]?.toBooleanStrictOrNull() ?: d.noProfileRetry,
                 coreLogLevel = map["coreLog"]?.let { enumOr<CoreLogLevel>(it) } ?: d.coreLogLevel,
                 blockedApps = map["blockedApps"]?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
                     ?: d.blockedApps,
+                upstreamProxy = map.string("upstreamProxy", d.upstreamProxy),
+                routeSniff = map["routeSniff"]?.toBooleanStrictOrNull() ?: d.routeSniff,
+                routeSniffMs = map["routeSniffMs"]?.toIntOrNull() ?: d.routeSniffMs,
+                autoReprovision = map["autoReprovision"]?.toBooleanStrictOrNull() ?: d.autoReprovision,
             )
         }.getOrDefault(d)
     }
@@ -216,4 +248,21 @@ object ProfileCodec {
 
     private inline fun <reified T : Enum<T>> enumOr(name: String): T? =
         runCatching { enumValueOf<T>(name) }.getOrNull()
+
+    private fun MutableList<String>.addString(key: String, value: String) {
+        val encoded = Base64.encodeToString(value.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+        add("$key=b64:$encoded")
+    }
+
+    private fun Map<String, String>.string(key: String, default: String): String {
+        val value = get(key) ?: return default
+        return if (value.startsWith("b64:")) {
+            val encoded = value.removePrefix("b64:")
+            runCatching {
+                String(Base64.decode(encoded, Base64.NO_WRAP), Charsets.UTF_8)
+            }.getOrDefault(default)
+        } else {
+            value
+        }
+    }
 }

@@ -22,19 +22,26 @@ import com.najishab.aether.core.Diagnostics
 import com.najishab.aether.core.DiagnosticsLog
 import com.najishab.aether.core.EngineMeta
 import com.najishab.aether.core.AutoCandidate
+import com.najishab.aether.core.EndpointHistoryEntry
+import com.najishab.aether.core.PingMonitor
 import com.najishab.aether.core.PortProbe
+import com.najishab.aether.core.currentNetworkLabel
+import com.najishab.aether.data.EndpointHistoryStore
 import com.najishab.aether.core.ProfileCodec
 import com.najishab.aether.core.HevTunnel
 import com.najishab.aether.core.RoutingEngine
 import com.najishab.aether.core.ShareBridge
 import com.najishab.aether.core.SmartAuto
 import com.najishab.aether.core.SocksTunBridge
+import com.najishab.aether.core.TunnelUsageTracker
 import com.najishab.aether.core.TunnelConfig
+import com.najishab.aether.data.TunnelUsageSource
 import com.najishab.aether.model.ConnectionProfile
 import com.najishab.aether.model.ConnectionState
 import com.najishab.aether.model.Noize
 import com.najishab.aether.model.Protocol
 import com.najishab.aether.model.SplitMode
+import com.najishab.aether.widget.AetherWidgetLargeProvider
 import com.najishab.aether.widget.AetherWidgetProvider
 import java.io.File
 
@@ -64,6 +71,8 @@ class AetherVpnService : VpnService() {
 
     /** Active userspace filter bridge (only when per-app blocking is on). */
     private var tunBridge: SocksTunBridge? = null
+    private val usageTracker by lazy { TunnelUsageTracker(applicationContext, scope) }
+    private var hevUsageJob: Job? = null
 
     /** Last profile the service ran with (kill-switch decisions). */
     private var lastProfile: ConnectionProfile? = null
@@ -78,6 +87,18 @@ class AetherVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_DISCONNECT -> {
+                // ANDROID FGS CONTRACT FIX: this branch is reached via
+                // ContextCompat.startForegroundService() (see
+                // AetherController.disconnect()) — e.g. from the widgets'
+                // toggle button. Android requires startForeground() to be
+                // called within a few seconds of EVERY startForegroundService()
+                // call, even when the service is already in the foreground
+                // state from a previous connect. Skipping it here (the old
+                // code went straight to stopEverything()) let the system kill
+                // the process with ForegroundServiceDidNotStartInTimeException
+                // right as it was tearing down anyway — harmless in effect
+                // (disconnect still completed) but a crash in the logs.
+                startForeground(NOTIF_ID, buildNotification(getString(R.string.state_disconnecting)))
                 // STRICT KILL SWITCH (1.2.4): a manual disconnect must not
                 // open a leak window. With strict mode on, the first
                 // disconnect engages lockdown instead; disconnecting FROM
@@ -169,7 +190,47 @@ class AetherVpnService : VpnService() {
         updateNotification(getString(R.string.state_connected))
         DiagnosticsLog.i(TAG, "All checks passed — tunnel is ready.")
 
+        recordEndpointHistory(resolved)
+
         superviseEngine(resolved)
+    }
+
+    /**
+     * Endpoint Health Check & History (independent, modular feature — see
+     * EndpointHistoryActivity): the instant a connection is reported
+     * Connected, snapshot the ground-truth endpoint EngineMeta parsed from
+     * the engine's own log (or the pinned manual peer), a fresh tunnel ping,
+     * and the current network label, and persist it. Fire-and-forget on the
+     * service's own scope so it can never delay reporting Connected.
+     */
+    private fun recordEndpointHistory(resolved: ConnectionProfile) {
+        scope.launch {
+            val endpoint = awaitEndpointForHistory() ?: run {
+                DiagnosticsLog.w(TAG, "Endpoint history skipped: engine did not publish an endpoint.")
+                return@launch
+            }
+            runCatching { PingMonitor.pingOnce(viaTunnel = true) }
+            val ping = PingMonitor.state.value.ms
+            runCatching {
+                EndpointHistoryStore(applicationContext).recordSuccess(
+                    EndpointHistoryEntry(
+                        endpoint = endpoint,
+                        protocol = resolved.protocol.name,
+                        pingMs = ping,
+                        network = currentNetworkLabel(applicationContext),
+                        lastSuccessMs = System.currentTimeMillis(),
+                    ),
+                )
+            }
+        }
+    }
+
+    private suspend fun awaitEndpointForHistory(): String? {
+        repeat(10) {
+            EngineMeta.state.value.endpoint?.takeIf { it.isNotBlank() }?.let { return it }
+            delay(100L)
+        }
+        return null
     }
 
     /**
@@ -184,7 +245,11 @@ class AetherVpnService : VpnService() {
         AetherController.setState(ConnectionState.Launching)
         updateNotification(getString(R.string.state_analyzing))
         val fingerprint = SmartAuto.fingerprint(this)
-        val plan = SmartAuto.buildPlan(userProfile, fingerprint)
+        // Smart Priority: known-good endpoints for THIS network get a shot
+        // before the fresh DPI ladder (see EndpointHistoryStore / SmartAuto).
+        val networkLabel = currentNetworkLabel(this)
+        val history = runCatching { EndpointHistoryStore(applicationContext).recent() }.getOrDefault(emptyList())
+        val plan = SmartAuto.buildPlan(userProfile, fingerprint, history, networkLabel)
         return runLadder(plan, getString(R.string.err_auto_failed))
     }
 
@@ -327,7 +392,7 @@ class AetherVpnService : VpnService() {
             // instead of claiming "Local proxy ready" over dead ports (the old
             // fire-and-forget start swallowed EADDRINUSE and still reported
             // 1080/8118 as ready — external apps then couldn't connect).
-            val shareReady = ShareBridge.startSync(localOnly = !profile.lanShare)
+            val shareReady = ShareBridge.startSync(localOnly = !profile.lanShare, tracker = usageTracker)
             if (!shareReady) {
                 DiagnosticsLog.e(TAG, "Proxy mode: the fixed local proxy ports could not be opened (see errors above).")
                 throw IllegalStateException(getString(R.string.err_proxy_ports))
@@ -344,7 +409,7 @@ class AetherVpnService : VpnService() {
             startTun2Socks(profile)
             // LAN sharing: if the user enabled it, expose the tunnel to other
             // devices on the same Wi-Fi/hotspot (HTTP + SOCKS5 bridge).
-            if (profile.lanShare) ShareBridge.start(localOnly = false)
+            if (profile.lanShare) ShareBridge.start(localOnly = false, tracker = usageTracker)
         }
 
         // GATING FIX: the app used to report Connected the moment the TUN /
@@ -372,6 +437,7 @@ class AetherVpnService : VpnService() {
             DiagnosticsLog.e(TAG, "Self-test failed — refusing to report Connected.")
             throw IllegalStateException(getString(R.string.err_selftest))
         }
+        beginUsageAccounting(profile)
 
         // Informational only: report where the tunnel actually came out.
         // WARP edges are anycast, so the exit location is decided by the
@@ -445,6 +511,7 @@ class AetherVpnService : VpnService() {
                 updateNotification(getString(R.string.state_verifying))
                 if (runCatching { Diagnostics.run() }.getOrDefault(false)) {
                     attempt = 0
+                    beginUsageAccounting(profile)
                     AetherController.setState(ConnectionState.Connected("$SOCKS_HOST:$SOCKS_PORT"))
                     updateNotification(getString(R.string.state_connected))
                 } else {
@@ -567,6 +634,7 @@ class AetherVpnService : VpnService() {
                 mtu = profile.mtu.coerceIn(576, 9000),
                 blockedPackagesProvider = { profile.blockedApps.toSet() },
                 routingEngine = RoutingEngine(emptyList()),
+                usageTracker = usageTracker,
             )
             DiagnosticsLog.i(TAG, "Starting userspace filter bridge (blocked apps=${profile.blockedApps.size})")
             bridge.start()
@@ -734,6 +802,7 @@ class AetherVpnService : VpnService() {
             }
             tunnelStarted = false
         }
+        stopUsageAccounting()
         try {
             engine?.stop()
         } catch (_: Throwable) {
@@ -773,6 +842,7 @@ class AetherVpnService : VpnService() {
             }
             tunnelStarted = false
         }
+        stopUsageAccounting()
         try {
             engine?.stop()
         } catch (_: Throwable) {
@@ -783,6 +853,37 @@ class AetherVpnService : VpnService() {
         } catch (_: Throwable) {
         }
         tun = null
+    }
+
+    private fun beginUsageAccounting(profile: ConnectionProfile) {
+        val source = when {
+            profile.proxyMode -> if (profile.lanShare) TunnelUsageSource.LAN_SHARE else TunnelUsageSource.LOCAL_PROXY
+            else -> TunnelUsageSource.VPN_TUN
+        }
+        usageTracker.start(source)
+        if (profile.proxyMode || profile.blockedApps.isNotEmpty()) return
+        hevUsageJob?.cancel()
+        hevUsageJob = scope.launch(Dispatchers.IO) {
+            var lastUpload = 0L
+            var lastDownload = 0L
+            while (currentScopeActive() && HevTunnel.isAlive()) {
+                HevTunnel.traffic()?.let { traffic ->
+                    val uploadDelta = (traffic.uploadBytes - lastUpload).coerceAtLeast(0L)
+                    val downloadDelta = (traffic.downloadBytes - lastDownload).coerceAtLeast(0L)
+                    usageTracker.add(uploadDelta, downloadDelta)
+                    lastUpload = traffic.uploadBytes
+                    lastDownload = traffic.downloadBytes
+                }
+                delay(HEV_USAGE_SAMPLE_MS)
+            }
+            usageTracker.flush()
+        }
+    }
+
+    private fun stopUsageAccounting() {
+        hevUsageJob?.cancel()
+        hevUsageJob = null
+        usageTracker.end()
     }
 
     private fun stopForegroundCompat() {
@@ -804,6 +905,11 @@ class AetherVpnService : VpnService() {
         cleanupNativeOnly()
         scope.coroutineContext[Job]?.cancel()
         super.onDestroy()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        usageTracker.flush()
+        super.onTrimMemory(level)
     }
 
     private fun buildNotification(text: String): android.app.Notification {
@@ -836,9 +942,10 @@ class AetherVpnService : VpnService() {
         manager.notify(NOTIF_ID, buildNotification(text))
         // Keep the Quick Settings tile in sync with every state transition.
         AetherTileService.requestUpdate(this)
-        // Keep the home-screen widget (feature merge) in sync too.
+        // Keep the home-screen widgets (simple + large) in sync too.
         // Cheap: returns immediately when no widget is placed.
         AetherWidgetProvider.updateAllWidgets(this)
+        AetherWidgetLargeProvider.updateAllWidgets(this)
     }
 
     companion object {
@@ -863,6 +970,7 @@ class AetherVpnService : VpnService() {
 
         /** Watchdog probe cadence while the tunnel is up (1.2.4). */
         private const val WATCHDOG_INTERVAL_MS = 30_000L
+        private const val HEV_USAGE_SAMPLE_MS = 5_000L
 
         /**
          * Consecutive failed checks before the engine is restarted (1.2.4

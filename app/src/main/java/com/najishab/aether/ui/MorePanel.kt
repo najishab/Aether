@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ShowChart
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -39,6 +40,7 @@ fun MorePanel(
     onThemeModeChange: (ThemeMode) -> Unit,
     onOpenLiveGraph: () -> Unit,
     onOpenUsageCalendar: () -> Unit,
+    onOpenEndpointHistory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -88,6 +90,15 @@ fun MorePanel(
             title = stringResource(R.string.usage_calendar_title),
             subtitle = stringResource(R.string.usage_calendar_subtitle),
             onClick = onOpenUsageCalendar,
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        MoreRow(
+            icon = Icons.Rounded.NetworkCheck,
+            title = stringResource(R.string.endpoint_history_title),
+            subtitle = stringResource(R.string.endpoint_history_subtitle),
+            onClick = onOpenEndpointHistory,
         )
     }
 }

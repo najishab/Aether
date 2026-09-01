@@ -76,6 +76,7 @@ import androidx.compose.material3.TextButton
 import android.app.Activity
 import android.content.Intent
 import com.najishab.aether.ChangelogActivity
+import com.najishab.aether.EndpointHistoryActivity
 import com.najishab.aether.LiveGraphActivity
 import com.najishab.aether.UsageCalendarActivity
 import com.najishab.aether.data.ThemeMode
@@ -349,6 +350,9 @@ fun HomeScreen(
                     },
                     onOpenUsageCalendar = {
                         moreContext.startActivity(Intent(moreContext, UsageCalendarActivity::class.java))
+                    },
+                    onOpenEndpointHistory = {
+                        moreContext.startActivity(Intent(moreContext, EndpointHistoryActivity::class.java))
                     },
                 )
             }

@@ -5,4 +5,16 @@
     <color name="aether_primary">#4D8DFF</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+
+    <!-- Widget palette — purple/violet glass, matching the reference design
+         (deep violet gradient card over the dark wallpaper) instead of the
+         previous flat navy. -->
+    <color name="widget_surface_top">#F02D1B69</color>
+    <color name="widget_surface_bottom">#F60D0620</color>
+    <color name="widget_sub_surface">#FF3B2278</color>
+    <color name="widget_success">#FF22C55E</color>
+    <color name="widget_danger">#FFFF4D67</color>
+    <color name="widget_blue">#FF4D8DFF</color>
+    <color name="widget_text_primary">#FFF1F5FF</color>
+    <color name="widget_text_muted">#FFC9BEEA</color>
 </resources>

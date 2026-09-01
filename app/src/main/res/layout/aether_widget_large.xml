@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_large_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/widget_bg_large">
+
+    <!-- Row 1: flag + "Connected to" + latency badge + toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/widget_flag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="\uD83C\uDFF3\uFE0F" />
+
+        <TextView
+            android:id="@+id/widget_large_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/widget_text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="@string/state_idle" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/widget_sub_bg"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/widget_text_muted"
+                    android:textSize="10sp"
+                    android:text="@string/meta_latency" />
+
+                <TextView
+                    android:id="@+id/widget_latency_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textDirection="ltr"
+                    android:fontFamily="monospace"
+                    android:textStyle="bold"
+                    android:textColor="@color/widget_text_primary"
+                    android:textSize="13sp"
+                    android:text="\u2014" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_latency"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/widget_toggle_large"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/widget_button_bg"
+            android:contentDescription="@string/widget_toggle_desc"
+            android:padding="6dp"
+            android:src="@drawable/ic_notification" />
+    </LinearLayout>
+
+    <!-- Row 2: IP + location -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/widget_ip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textDirection="ltr"
+            android:textAlignment="viewStart"
+            android:fontFamily="monospace"
+            android:textColor="@color/widget_text_primary"
+            android:textSize="13sp"
+            android:text="@string/ip_unavailable" />
+
+        <TextView
+            android:id="@+id/widget_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/widget_text_muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Row 3: duration box + traffic box -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:background="@drawable/widget_sub_bg"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/widget_duration_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/widget_text_muted"
+                android:textSize="10sp"
+                android:text="@string/connected_for" />
+
+            <Chronometer
+                android:id="@+id/widget_duration_chronometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="17sp"
+                android:format="%s" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:orientation="vertical"
+            android:background="@drawable/widget_sub_bg"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/widget_circle_up"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_arrow_up"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/widget_text_muted"
+                        android:textSize="9sp"
+                        android:text="@string/traffic_upload" />
+
+                    <TextView
+                        android:id="@+id/widget_traffic_up"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textDirection="ltr"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        android:textColor="@color/widget_text_primary"
+                        android:textSize="12sp"
+                        android:text="0 B/s" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/widget_circle_down"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_arrow_down"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/widget_text_muted"
+                        android:textSize="9sp"
+                        android:text="@string/traffic_download" />
+
+                    <TextView
+                        android:id="@+id/widget_traffic_down"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textDirection="ltr"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        android:textColor="@color/widget_text_primary"
+                        android:textSize="12sp"
+                        android:text="0 B/s" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

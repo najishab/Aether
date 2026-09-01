@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
  *   - "[+] selected WireGuard endpoint 162.159.195.96:946 (rtt ...)"
  *   - "[+] selected WireGuard endpoint 162.159.195.96:946 using aethernoize ..."
  *   - "[+] selected MASQUE gateway 162.159.198.1:443 (rtt ...)"
+ *   - "[+] using cloudflare edge 162.159.198.1:443"
  * The protocol comes from the RESOLVED profile (Smart Auto resolves AUTO to
  * a concrete protocol before launch), published via [setProtocol].
  */
@@ -49,10 +50,14 @@ object EngineMeta {
     fun ingest(line: String) {
         val endpoint = WG_MARKER.find(line)?.groupValues?.get(1)
             ?: MASQUE_MARKER.find(line)?.groupValues?.get(1)
+            ?: EDGE_MARKER.find(line)?.groupValues?.get(1)
+            ?: FORCED_MARKER.find(line)?.groupValues?.get(1)
             ?: return
         _state.value = _state.value.copy(endpoint = endpoint)
     }
 
     private val WG_MARKER = Regex("selected WireGuard endpoint (\\S+:\\d+)")
     private val MASQUE_MARKER = Regex("selected MASQUE gateway (\\S+:\\d+)")
+    private val EDGE_MARKER = Regex("using cloudflare edge (\\S+:\\d+)")
+    private val FORCED_MARKER = Regex("using forced peer (\\S+:\\d+)")
 }
