@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -18,6 +19,8 @@
     <application
         android:name=".AetherApp"
         android:allowBackup="false"
+        android:extractNativeLibs="true"
+        tools:targetApi="34"
         android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -120,6 +123,11 @@
 
         <activity
             android:name=".EndpointHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.NajiAethers" />
+
+        <activity
+            android:name=".EndpointScannerActivity"
             android:exported="false"
             android:theme="@style/Theme.NajiAethers" />
 

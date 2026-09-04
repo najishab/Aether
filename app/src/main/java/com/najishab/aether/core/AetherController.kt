@@ -109,9 +109,7 @@ object AetherController {
 
 /**
  * Serialises a [ConnectionProfile] into a compact `key=value` list (one pair per
- * line) for Intent transport. This format is forward/backward tolerant: unknown
- * keys are ignored and missing keys fall back to the model defaults, so old and
- * new builds can decode each other's payloads without crashing.
+ * line) for Intent transport.
  */
 object ProfileCodec {
     fun encode(p: ConnectionProfile): String = buildList {
@@ -124,7 +122,6 @@ object ProfileCodec {
         add("noize=${p.noize.name}")
         add("endpoint=${p.endpointMode.name}")
         addString("peer", p.manualPeer)
-        addString("range", p.manualRange)
         add("keepalive=${p.keepalive}")
         add("fragment=${p.fragment}")
         add("ech=${p.ech}")
@@ -132,7 +129,6 @@ object ProfileCodec {
         add("proxy=${p.proxyMode}")
         add("split=${p.splitMode.name}")
         add("splitApps=${p.splitApps.joinToString(",")}")
-        // Added in 1.2.3 (engine v1.5.0)
         addString("dns", p.dnsServers)
         addString("team", p.team)
         add("teamAuth=${p.teamAuth.name}")
@@ -143,7 +139,6 @@ object ProfileCodec {
         add("gateway=${p.gateway}")
         addString("routeBlock", p.routeBlock)
         addString("routeDirect", p.routeDirect)
-        // Added in 1.2.4 (feature parity)
         add("kill=${p.killSwitch}")
         add("strictKill=${p.strictKillSwitch}")
         add("v6leak=${p.ipv6LeakProtection}")
@@ -158,7 +153,6 @@ object ProfileCodec {
         add("noProfRetry=${p.noProfileRetry}")
         add("coreLog=${p.coreLogLevel.name}")
         add("blockedApps=${p.blockedApps.joinToString(",")}")
-        // Added in 1.2.6 (engine v1.7.0)
         addString("upstreamProxy", p.upstreamProxy)
         add("routeSniff=${p.routeSniff}")
         add("routeSniffMs=${p.routeSniffMs}")
@@ -167,8 +161,6 @@ object ProfileCodec {
 
     fun decode(raw: String?): ConnectionProfile {
         if (raw.isNullOrBlank()) return ConnectionProfile()
-        // Backward compatibility: the 1.0/1.1 codec used a single pipe-delimited
-        // line with no keys. Detect and decode that legacy shape.
         if (!raw.contains('=') && raw.contains('|')) return decodeLegacy(raw)
 
         val map = raw.lineSequence()
@@ -189,7 +181,6 @@ object ProfileCodec {
                 noize = map["noize"]?.let { enumOr<Noize>(it) } ?: d.noize,
                 endpointMode = map["endpoint"]?.let { enumOr<EndpointMode>(it) } ?: d.endpointMode,
                 manualPeer = map.string("peer", d.manualPeer),
-                manualRange = map.string("range", d.manualRange),
                 keepalive = map["keepalive"]?.toIntOrNull() ?: d.keepalive,
                 fragment = map["fragment"]?.toBooleanStrictOrNull() ?: d.fragment,
                 ech = map["ech"]?.toBooleanStrictOrNull() ?: d.ech,

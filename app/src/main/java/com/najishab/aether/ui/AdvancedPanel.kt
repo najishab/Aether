@@ -1,24 +1,38 @@
 package com.najishab.aether.ui
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Balance
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.NetworkCheck
+import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -26,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +56,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
+import com.najishab.aether.EndpointHistoryActivity
+import com.najishab.aether.EndpointScannerActivity
 import com.najishab.aether.R
 import com.najishab.aether.core.ShareBridge
 import com.najishab.aether.model.ConnectionProfile
@@ -52,7 +71,6 @@ import com.najishab.aether.model.IpVersion
 import com.najishab.aether.model.Noize
 import com.najishab.aether.model.Protocol
 import com.najishab.aether.model.ScanMode
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.najishab.aether.model.SplitMode
 import com.najishab.aether.model.TeamAuth
 import com.najishab.aether.ui.components.AppPickerDialog
@@ -62,21 +80,12 @@ import com.najishab.aether.ui.components.SegmentedSelector
 import com.najishab.aether.ui.components.batteryOptimizationIntent
 import com.najishab.aether.ui.components.isIgnoringBatteryOptimizations
 
-/**
- * Collapsible "Advanced" card exposing the full engine v1.3.0 feature set:
- * protocol, scan mode, IP version, Amnezia-style obfuscation, endpoint
- * selection (auto / manual IP / custom range), keepalive, MTU, TLS
- * fragmentation, ECH, MASQUE-over-HTTP/2, quick reconnect, proxy mode and
- * per-app split tunneling.
- */
 @Composable
 fun AdvancedPanel(
     profile: ConnectionProfile,
     onProfileChange: (ConnectionProfile) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    // True when hosted in the home-screen bottom sheet, where the card should
-    // open already expanded instead of requiring an extra tap.
     startExpanded: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(startExpanded) }
@@ -123,25 +132,126 @@ fun AdvancedPanel(
                 Column {
                     Spacer(Modifier.height(16.dp))
 
-                    // ---------- Core ----------
                     SettingLabel(stringResource(R.string.protocol))
-                    SegmentedSelector(
-                        options = Protocol.entries,
-                        selected = profile.protocol,
-                        onSelect = { onProfileChange(profile.copy(protocol = it)) },
-                        label = { protocolLabel(it) },
-                        enabled = enabled,
-                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf(Protocol.AUTO, Protocol.WIREGUARD).forEach { proto ->
+                            val isSelected = profile.protocol == proto
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable(enabled = enabled) {
+                                        onProfileChange(profile.copy(protocol = proto))
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                border = BorderStroke(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                ),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                            ) {
+                                Text(
+                                    text = protocolLabel(proto),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(vertical = 12.dp),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer(Modifier.height(8.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf(Protocol.MASQUE, Protocol.MASQUE_H2, Protocol.GOOL).forEach { proto ->
+                            val isSelected = profile.protocol == proto
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable(enabled = enabled) {
+                                        onProfileChange(profile.copy(protocol = proto))
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                border = BorderStroke(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                ),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                            ) {
+                                Text(
+                                    text = protocolLabel(proto),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(vertical = 12.dp),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
+                    }
+                    
                     Spacer(Modifier.height(16.dp))
 
                     SettingLabel(stringResource(R.string.scan_mode))
-                    DropdownSelector(
-                        options = ScanMode.entries,
-                        selected = profile.scanMode,
-                        onSelect = { onProfileChange(profile.copy(scanMode = it)) },
-                        label = { scanLabel(it) },
-                        enabled = enabled,
-                    )
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ScanMode.entries.forEach { mode ->
+                            val isSelected = profile.scanMode == mode
+                            val icon = when (mode) {
+                                ScanMode.TURBO -> Icons.Rounded.Bolt
+                                ScanMode.BALANCED -> Icons.Rounded.Balance
+                                ScanMode.THOROUGH -> Icons.Rounded.Search
+                                ScanMode.STEALTH -> Icons.Rounded.VisibilityOff
+                                ScanMode.IRONCLAD -> Icons.Rounded.Shield
+                            }
+
+                            Surface(
+                                modifier = Modifier
+                                    .clickable(enabled = enabled) {
+                                        onProfileChange(profile.copy(scanMode = mode))
+                                    },
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                                ),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f) 
+                                        else MaterialTheme.colorScheme.surface.copy(alpha = 0.25f),
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        tint = if (isSelected) MaterialTheme.colorScheme.primary 
+                                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Text(
+                                        text = scanLabel(mode),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary 
+                                               else MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            }
+                        }
+                    }
                     Spacer(Modifier.height(16.dp))
 
                     SettingLabel(stringResource(R.string.ip_version))
@@ -167,6 +277,7 @@ fun AdvancedPanel(
                     HelperText(stringResource(R.string.noize_desc))
                     Spacer(Modifier.height(16.dp))
 
+                    // حالت اندپوینت: فقط خودکار یا آی‌پی دستی
                     SettingLabel(stringResource(R.string.endpoint_mode))
                     SegmentedSelector(
                         options = EndpointMode.entries,
@@ -175,11 +286,58 @@ fun AdvancedPanel(
                         label = { endpointLabel(it) },
                         enabled = enabled,
                     )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                context.startActivity(Intent(context, EndpointScannerActivity::class.java))
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Radar,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.endpoint_btn_scanner),
+                                style = MaterialTheme.typography.labelMedium,
+                                maxLines = 1,
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                context.startActivity(Intent(context, EndpointHistoryActivity::class.java))
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.NetworkCheck,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.endpoint_btn_history),
+                                style = MaterialTheme.typography.labelMedium,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+
                     if (profile.endpointMode == EndpointMode.MANUAL_PEER) {
                         Spacer(Modifier.height(12.dp))
-                        // BiDi fix: ip:port is LTR technical text — a plain
-                        // OutlinedTextField scrambles typed digits in the RTL
-                        // (Persian) locale. LtrOutlinedTextField pins LTR.
                         LtrOutlinedTextField(
                             value = profile.manualPeer,
                             onValueChange = { onProfileChange(profile.copy(manualPeer = it)) },
@@ -190,21 +348,7 @@ fun AdvancedPanel(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                    if (profile.endpointMode == EndpointMode.MANUAL_RANGE) {
-                        Spacer(Modifier.height(12.dp))
-                        // BiDi fix: CIDR ranges are LTR technical text — this is
-                        // the exact field where typed digits appeared shuffled.
-                        LtrOutlinedTextField(
-                            value = profile.manualRange,
-                            onValueChange = { onProfileChange(profile.copy(manualRange = it)) },
-                            enabled = enabled,
-                            singleLine = false,
-                            label = { Text(stringResource(R.string.manual_range_label)) },
-                            placeholder = { Text(stringResource(R.string.manual_range_hint)) },
-                            supportingText = { Text(stringResource(R.string.manual_range_help)) },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
+
                     Spacer(Modifier.height(16.dp))
 
                     SettingLabel(stringResource(R.string.keepalive_label))
@@ -245,13 +389,6 @@ fun AdvancedPanel(
                         onChange = { onProfileChange(profile.copy(ech = it)) },
                     )
                     ToggleRow(
-                        title = stringResource(R.string.masque_http2),
-                        description = stringResource(R.string.masque_http2_desc),
-                        checked = profile.masqueHttp2,
-                        enabled = enabled,
-                        onChange = { onProfileChange(profile.copy(masqueHttp2 = it)) },
-                    )
-                    ToggleRow(
                         title = stringResource(R.string.quick_reconnect),
                         description = stringResource(R.string.quick_reconnect_desc),
                         checked = profile.quickReconnect,
@@ -259,9 +396,8 @@ fun AdvancedPanel(
                         onChange = { onProfileChange(profile.copy(quickReconnect = it)) },
                     )
 
-                    // ---------- DNS inside the tunnel (engine v1.5.0) ----------
+                    // ---------- DNS inside the tunnel ----------
                     SettingLabel(stringResource(R.string.dns_label))
-                    // BiDi: resolver addresses are LTR technical text.
                     LtrOutlinedTextField(
                         value = profile.dnsServers,
                         onValueChange = { onProfileChange(profile.copy(dnsServers = it)) },
@@ -274,7 +410,7 @@ fun AdvancedPanel(
                     )
                     Spacer(Modifier.height(16.dp))
 
-                    // ---------- Routing rules (engine v1.5.0) ----------
+                    // ---------- Routing rules ----------
                     SectionHeader(stringResource(R.string.section_routes))
 
                     LtrOutlinedTextField(
@@ -299,10 +435,6 @@ fun AdvancedPanel(
                     HelperText(stringResource(R.string.routes_help))
                     Spacer(Modifier.height(8.dp))
 
-                    // Core 1.7.0: match the domain rules above on the name read
-                    // from the first bytes. Android is always a tun front end,
-                    // so without this the engine only ever sees an address and
-                    // every domain rule above would quietly do nothing.
                     ToggleRow(
                         title = stringResource(R.string.route_sniff_title),
                         description = stringResource(R.string.route_sniff_desc),
@@ -329,7 +461,7 @@ fun AdvancedPanel(
                         Spacer(Modifier.height(8.dp))
                     }
 
-                    // ---------- Upstream proxy / chaining (engine v1.7.0) ----------
+                    // ---------- Upstream proxy / chaining ----------
                     SectionHeader(stringResource(R.string.section_upstream))
 
                     LtrOutlinedTextField(
@@ -344,7 +476,7 @@ fun AdvancedPanel(
                     HelperText(stringResource(R.string.upstream_help))
                     Spacer(Modifier.height(8.dp))
 
-                    // ---------- Zero Trust / organization (engine v1.5.0) ----------
+                    // ---------- Zero Trust / organization ----------
                     SectionHeader(stringResource(R.string.section_zerotrust))
 
                     SettingLabel(stringResource(R.string.team_auth_label))
@@ -384,10 +516,6 @@ fun AdvancedPanel(
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                                 Spacer(Modifier.height(12.dp))
-                                // Masked: a service-token secret is an
-                                // organization credential, so it must not be
-                                // readable over someone's shoulder or land in a
-                                // screenshot.
                                 LtrOutlinedTextField(
                                     value = profile.accessClientSecret,
                                     onValueChange = {
@@ -459,9 +587,6 @@ fun AdvancedPanel(
                         enabled = enabled,
                         onChange = { onProfileChange(profile.copy(proxyMode = it)) },
                     )
-                    // Fixed local proxy endpoints (v2rayNG-style standard ports,
-                    // they never change) shown right under the toggle with a
-                    // one-tap copy button, so nobody has to dig through logs.
                     AnimatedVisibility(visible = profile.proxyMode) {
                         Column {
                             Spacer(Modifier.height(4.dp))
@@ -503,7 +628,7 @@ fun AdvancedPanel(
                         }
                     }
 
-                    // ---------- Per-app internet blocking (1.2.4) ----------
+                    // ---------- Per-app internet blocking ----------
                     Spacer(Modifier.height(12.dp))
                     OutlinedButton(
                         onClick = { showBlockedPicker = true },
@@ -520,7 +645,7 @@ fun AdvancedPanel(
                     }
                     HelperText(stringResource(R.string.blocked_apps_desc))
 
-                    // ---------- Security & stability (1.2.4) ----------
+                    // ---------- Security & stability ----------
                     SectionHeader(stringResource(R.string.section_security))
 
                     ToggleRow(
@@ -572,7 +697,7 @@ fun AdvancedPanel(
                         )
                     }
 
-                    // ---------- Engine tuning (1.2.4) ----------
+                    // ---------- Engine tuning ----------
                     SectionHeader(stringResource(R.string.section_engine_tuning))
 
                     if (profile.fragment) {
@@ -654,9 +779,6 @@ fun AdvancedPanel(
                     SectionHeader(stringResource(R.string.section_reset))
                     OutlinedButton(
                         onClick = {
-                            // Restore every setting to factory defaults. Persisted
-                            // immediately through the normal onProfileChange path
-                            // (DataStore), exactly like any other settings change.
                             onProfileChange(ConnectionProfile())
                             Toast.makeText(context, R.string.reset_done, Toast.LENGTH_SHORT).show()
                         },
@@ -694,11 +816,6 @@ fun AdvancedPanel(
     }
 }
 
-/**
- * Row that opens the system "ignore battery optimizations" screen for this
- * app, so the user can grant (or later revoke, via system settings) the
- * exemption offered automatically after their first successful connection.
- */
 @Composable
 private fun BatteryOptRow() {
     val context = LocalContext.current
@@ -804,6 +921,7 @@ private fun ToggleRow(
 private fun protocolLabel(protocol: Protocol): String = when (protocol) {
     Protocol.AUTO -> stringResource(R.string.protocol_auto)
     Protocol.MASQUE -> stringResource(R.string.protocol_masque)
+    Protocol.MASQUE_H2 -> stringResource(R.string.protocol_masque_h2)
     Protocol.WIREGUARD -> stringResource(R.string.protocol_wireguard)
     Protocol.GOOL -> stringResource(R.string.protocol_gool)
 }
@@ -838,7 +956,6 @@ private fun noizeLabel(n: Noize): String = when (n) {
 private fun endpointLabel(m: EndpointMode): String = when (m) {
     EndpointMode.AUTO -> stringResource(R.string.endpoint_auto)
     EndpointMode.MANUAL_PEER -> stringResource(R.string.endpoint_peer)
-    EndpointMode.MANUAL_RANGE -> stringResource(R.string.endpoint_range)
 }
 
 @Composable
@@ -856,11 +973,6 @@ private fun splitLabel(m: SplitMode): String = when (m) {
     SplitMode.EXCLUDE -> stringResource(R.string.split_exclude)
 }
 
-/**
- * One fixed proxy endpoint (e.g. "127.0.0.1:10808") with a copy button.
- * The value is a compile-time constant address: it is the SAME every session,
- * so what the user copies into Psiphon/Telegram/etc. keeps working forever.
- */
 @Composable
 private fun ProxyEndpointRow(label: String, value: String) {
     val clipboard = LocalClipboardManager.current
@@ -880,7 +992,6 @@ private fun ProxyEndpointRow(label: String, value: String) {
             )
             Text(
                 text = value,
-                // BiDi fix: ip:port must always render LTR, even in RTL locale.
                 style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.onSurface,

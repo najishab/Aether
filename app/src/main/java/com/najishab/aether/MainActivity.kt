@@ -281,6 +281,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ------------------------------------------------------------------
+    // STALE-ADVANCED-SETTINGS FIX (root cause): uiProfile is loaded ONCE in
+    // onCreate and is then the single source of truth for the UI (see the
+    // SCRAMBLED-INPUT FIX note above) — by design, this Activity never
+    // re-reads ProfileStore on its own. But EndpointScannerActivity (and
+    // EndpointHistoryActivity) write a picked endpoint straight to
+    // ProfileStore and finish() back to us; since onCreate() does not run
+    // again on that return, uiProfile kept showing the OLD profile even
+    // though the new one was already on disk — e.g. "Use this endpoint" on
+    // a MASQUE-H2 result would appear to do nothing in Advanced settings.
+    //
+    // Fix: resync from ProfileStore every time this Activity comes back to
+    // the foreground. Safe to do unconditionally — the only writer to disk
+    // while this screen is itself in the foreground is our own
+    // profileSaves collector a few dozen ms ahead of any keystroke, so this
+    // just reads back the same value in the common case, and picks up an
+    // external write (scanner/history) in the one case that mattered.
+    // ------------------------------------------------------------------
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            uiProfile.value = profileStore.profile.first()
+        }
+    }
+
     private fun toggleConnection(state: ConnectionState) {
         if (state.isConnected || state.isBusy) {
             AetherController.disconnect(this)

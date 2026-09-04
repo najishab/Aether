@@ -98,13 +98,20 @@ class EndpointHistoryActivity : AppCompatActivity() {
             val store = ProfileStore(applicationContext)
             val current = store.profile.first()
             val protocol = runCatching { Protocol.valueOf(entry.protocol) }.getOrDefault(current.protocol)
+
+            // تشخیص خودکار IPv6 یا IPv4 از روی آدرس اندپوینت
+            val isIpv6 = entry.endpoint.startsWith("[") ||
+                    entry.endpoint.substringBeforeLast(':').contains(':')
+            val targetIpVersion = if (isIpv6) com.najishab.aether.model.IpVersion.V6 else com.najishab.aether.model.IpVersion.V4
+
             val updated = current.copy(
                 protocol = protocol,
+                masqueHttp2 = protocol == Protocol.MASQUE_H2,
+                ipVersion = targetIpVersion, // تنظیم خودکار نوع آی‌پی
                 endpointMode = EndpointMode.MANUAL_PEER,
                 manualPeer = entry.endpoint,
             )
-            // Persist first: Advanced Settings must reflect the imported
-            // endpoint even if the user backs out before it (re)connects.
+            // ذخیره در تنظیمات
             store.save(updated)
 
             val consent = AetherController.prepare(this@EndpointHistoryActivity)
@@ -119,9 +126,11 @@ class EndpointHistoryActivity : AppCompatActivity() {
     }
 
     private fun openMainActivity() {
-        startActivity(
-            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-        )
+        // بازگشت مستقیم به صفحه خانه با بستن تمام منوهای بازشده
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
         finish()
     }
 }

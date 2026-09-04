@@ -20,7 +20,6 @@ import com.najishab.aether.model.TeamAuth
 
 private val Context.dataStore by preferencesDataStore(name = "aether_profile")
 
-/** Persists the last-used [ConnectionProfile] with Jetpack DataStore. */
 class ProfileStore(private val context: Context) {
     private object Keys {
         val protocol = stringPreferencesKey("protocol")
@@ -29,11 +28,9 @@ class ProfileStore(private val context: Context) {
         val quick = booleanPreferencesKey("quick")
         val h2 = booleanPreferencesKey("h2")
         val share = booleanPreferencesKey("share")
-        // Added in 1.2.0
         val noize = stringPreferencesKey("noize")
         val endpoint = stringPreferencesKey("endpoint")
         val peer = stringPreferencesKey("peer")
-        val range = stringPreferencesKey("range")
         val keepalive = intPreferencesKey("keepalive")
         val fragment = booleanPreferencesKey("fragment")
         val ech = booleanPreferencesKey("ech")
@@ -41,7 +38,6 @@ class ProfileStore(private val context: Context) {
         val proxy = booleanPreferencesKey("proxy")
         val split = stringPreferencesKey("split")
         val splitApps = stringPreferencesKey("splitApps")
-        // Added in 1.2.3 (engine v1.5.0)
         val dns = stringPreferencesKey("dns")
         val team = stringPreferencesKey("team")
         val teamAuth = stringPreferencesKey("teamAuth")
@@ -50,7 +46,6 @@ class ProfileStore(private val context: Context) {
         val gateway = booleanPreferencesKey("gateway")
         val routeBlock = stringPreferencesKey("routeBlock")
         val routeDirect = stringPreferencesKey("routeDirect")
-        // Added in 1.2.4 (feature parity)
         val killSwitch = booleanPreferencesKey("killSwitch")
         val strictKillSwitch = booleanPreferencesKey("strictKillSwitch")
         val ipv6Leak = booleanPreferencesKey("ipv6Leak")
@@ -65,20 +60,12 @@ class ProfileStore(private val context: Context) {
         val noProfileRetry = booleanPreferencesKey("noProfileRetry")
         val coreLogLevel = stringPreferencesKey("coreLogLevel")
         val blockedApps = stringPreferencesKey("blockedApps")
-        // Added in 1.2.6 (engine v1.7.0)
         val upstreamProxy = stringPreferencesKey("upstreamProxy")
         val routeSniff = booleanPreferencesKey("routeSniff")
         val routeSniffMs = intPreferencesKey("routeSniffMs")
         val autoReprovision = booleanPreferencesKey("autoReprovision")
     }
 
-    /**
-     * Zero Trust secrets (service-token secret + enrolment JWT) are NOT kept in
-     * the DataStore preferences file. That file is plain protobuf inside the app
-     * sandbox, so a device backup or an adb dump on a rooted phone would expose
-     * a long-lived organization credential. They live in [SecretStore] instead,
-     * sealed with a hardware-backed AES-GCM key from the Android Keystore.
-     */
     private val secrets = SecretStore(context)
 
     val profile: Flow<ConnectionProfile> = context.dataStore.data.map { prefs ->
@@ -98,7 +85,6 @@ class ProfileStore(private val context: Context) {
             endpointMode = prefs[Keys.endpoint]
                 ?.let { runCatching { EndpointMode.valueOf(it) }.getOrNull() } ?: EndpointMode.AUTO,
             manualPeer = prefs[Keys.peer] ?: "",
-            manualRange = prefs[Keys.range] ?: "",
             keepalive = prefs[Keys.keepalive] ?: 0,
             fragment = prefs[Keys.fragment] ?: false,
             ech = prefs[Keys.ech] ?: false,
@@ -153,7 +139,6 @@ class ProfileStore(private val context: Context) {
             prefs[Keys.noize] = profile.noize.name
             prefs[Keys.endpoint] = profile.endpointMode.name
             prefs[Keys.peer] = profile.manualPeer
-            prefs[Keys.range] = profile.manualRange
             prefs[Keys.keepalive] = profile.keepalive
             prefs[Keys.fragment] = profile.fragment
             prefs[Keys.ech] = profile.ech
@@ -188,11 +173,9 @@ class ProfileStore(private val context: Context) {
             prefs[Keys.routeSniffMs] = profile.routeSniffMs
             prefs[Keys.autoReprovision] = profile.autoReprovision
         }
-        // Secrets go to the Keystore-sealed store, never to the prefs file.
         secrets.write(SecretStore.ACCESS_SECRET, profile.accessClientSecret)
         secrets.write(SecretStore.ACCESS_TOKEN, profile.accessToken)
     }
 
-    /** Wipes the sealed Zero Trust secrets (used by "Reset settings"). */
     fun clearSecrets() = secrets.clear()
 }

@@ -77,6 +77,7 @@ import android.app.Activity
 import android.content.Intent
 import com.najishab.aether.ChangelogActivity
 import com.najishab.aether.EndpointHistoryActivity
+import com.najishab.aether.EndpointScannerActivity
 import com.najishab.aether.LiveGraphActivity
 import com.najishab.aether.UsageCalendarActivity
 import com.najishab.aether.data.ThemeMode
@@ -352,7 +353,12 @@ fun HomeScreen(
                         moreContext.startActivity(Intent(moreContext, UsageCalendarActivity::class.java))
                     },
                     onOpenEndpointHistory = {
+                        showMoreSheet = false // منوی کشویی بلافاصله بسته شود
                         moreContext.startActivity(Intent(moreContext, EndpointHistoryActivity::class.java))
+                    },
+                    onOpenEndpointScanner = {
+                        showMoreSheet = false // این خط اضافه شود تا منوی More هنگام باز شدن اسکنر بلافاصله بسته شود
+                        moreContext.startActivity(Intent(moreContext, EndpointScannerActivity::class.java))
                     },
                 )
             }

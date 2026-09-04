@@ -38,6 +38,7 @@ import com.najishab.aether.core.TunnelConfig
 import com.najishab.aether.data.TunnelUsageSource
 import com.najishab.aether.model.ConnectionProfile
 import com.najishab.aether.model.ConnectionState
+import com.najishab.aether.model.IpVersion
 import com.najishab.aether.model.Noize
 import com.najishab.aether.model.Protocol
 import com.najishab.aether.model.SplitMode
@@ -273,10 +274,11 @@ class AetherVpnService : VpnService() {
     private fun directPlan(profile: ConnectionProfile): List<AutoCandidate> {
         val fullBudget = profile.connectTimeoutMs()
         val hardenedNoize = if (profile.noize == Noize.OFF) Noize.FIREWALL else profile.noize
-        val masque = profile.protocol == Protocol.MASQUE
+        val masque = profile.protocol == Protocol.MASQUE || profile.protocol == Protocol.MASQUE_H2
+        val isH2 = profile.protocol == Protocol.MASQUE_H2 || profile.masqueHttp2
         val hardened = profile.copy(
             noize = hardenedNoize,
-            masqueHttp2 = profile.masqueHttp2 || masque,
+            masqueHttp2 = isH2 || masque,
             fragment = profile.fragment || masque,
             ech = profile.ech || masque,
         )
@@ -539,7 +541,13 @@ class AetherVpnService : VpnService() {
         // IPv6 LEAK PROTECTION (1.2.4): on by default -- the v6 default
         // route keeps IPv6 traffic inside the tunnel. Can be disabled for
         // networks where a default v6 route breaks connectivity.
-        if (profile.ipv6LeakProtection) {
+        //
+        // Also forced on when the user explicitly picked V6/BOTH in the IP
+        // Version setting -- otherwise that setting only changed which
+        // family the engine used to scan for an endpoint, while the device's
+        // own default route stayed IPv4-only, so the exit IP shown to the
+        // user never actually changed. See AetherController IPv6 bug report.
+        if (profile.ipv6LeakProtection || profile.ipVersion != IpVersion.V4) {
             builder.addRoute("::", 0)
         }
 
@@ -820,7 +828,7 @@ class AetherVpnService : VpnService() {
             .addAddress(TunnelConfig.TUN_IPV4, TunnelConfig.TUN_IPV4_PREFIX)
             .addRoute("0.0.0.0", 0)
             .setBlocking(true)
-        if (profile.ipv6LeakProtection) {
+        if (profile.ipv6LeakProtection || profile.ipVersion != IpVersion.V4) {
             builder.addAddress(TunnelConfig.TUN_IPV6, TunnelConfig.TUN_IPV6_PREFIX)
             builder.addRoute("::", 0)
         }

@@ -29,9 +29,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.LocationOn
-import androidx.compose.material.icons.rounded.Shield
-import androidx.compose.material.icons.automirrored.rounded.ShowChart
+import androidx.compose.material.icons.rounded.Hub
+import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -428,11 +428,11 @@ private fun ProtocolStrip(connected: Boolean) {
             .padding(horizontal = 8.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MetaCell(Icons.Rounded.Shield, stringResource(R.string.meta_protocol), protocol, Modifier.weight(1f))
+        MetaCell(Icons.Rounded.Security, stringResource(R.string.meta_protocol), protocol, Modifier.weight(1f))
         CellDivider()
-        MetaCell(Icons.Rounded.LocationOn, stringResource(R.string.meta_endpoint), endpoint, Modifier.weight(1f))
+        MetaCell(Icons.Rounded.Hub, stringResource(R.string.meta_endpoint), endpoint, Modifier.weight(1f))
         CellDivider()
-        MetaCell(Icons.AutoMirrored.Rounded.ShowChart, stringResource(R.string.meta_latency), latency, Modifier.weight(1f))
+        MetaCell(Icons.Rounded.Speed, stringResource(R.string.meta_latency), latency, Modifier.weight(1f))
     }
 }
 
