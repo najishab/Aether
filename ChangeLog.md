@@ -4,6 +4,22 @@ All notable changes to the **NajiAether** project will be documented in this fil
 
 ---
 
+## [1.2.0] — 2026-09-04
+
+### ✨ New Features
+* **Endpoint Scanner Added:** A dedicated tool to discover healthy endpoints across 4 protocols (`MASQUE`, `MASQUE-H2`, `WireGuard`, and `AmneziaWG`). Features IPv4/IPv6 and port filters with one-tap configuration to apply settings and connect directly from search results.
+
+### ⚡ Core Engine Upgrade
+* **Core Engine Upgraded to v1.8.0:** Updated to Aether Core v1.8.0, supporting advanced routing rules (`--route-block` & `--route-direct`) by domain, IP, and port, optimized endpoint scanning sequences with Zero Trust range support, and resilient registration fallbacks with TLS fingerprint rotation for censored networks.
+
+### 📱 UI & UX Improvements
+* **Advanced Settings Redesign:** Streamlined UI for smoother navigation, added `MASQUE-H2` protocol support inside Advanced Settings, and optimized endpoint options with direct quick links to Endpoint Scanner and Endpoint History.
+
+### 🐛 Bug Fixes & Stability
+* **Tunnel DNS Bug Fix:** Resolved an issue where `DNS inside the tunnel` was not properly applied, ensuring accurate and reliable DNS routing.
+
+---
+
 ## [1.1.1] — 2026-09-02
 
 ### 📱 UI & UX Improvements
@@ -53,6 +69,22 @@ All notable changes to the **NajiAether** project will be documented in this fil
 ---
 
 <div dir="rtl">
+
+## [1.2.0] — ۱۴۰۵/۰۶/۱۴ (نسخه فارسی)
+
+### ✨ قابلیت‌های جدید
+* **افزودن اسکنر اندپوینت (Endpoint Scanner):** یک ابزار اختصاصی جهت یافتن اندپوینت‌های سالم برای ۴ پروتکل (`MASQUE` ،`MASQUE-H2` ،`WireGuard` و `AmneziaWG`). دارای فیلتر نوع آی‌پی (IPv4/IPv6) و پورت همراه با قابلیت پیکربندی و اتصال مستقیم از نتایج جستجو تنها با یک لمس.
+
+### ⚡ ارتقای هسته اصلی (Core Engine Upgrade)
+* **ارتقای هسته اصلی به نسخه v1.8.0:** به‌روزرسانی به هسته Aether Core v1.8.0 با پشتیبانی از قواعد مسیریابی پیشرفته (`--route-block` و `--route-direct`) بر اساس دامنه، IP و پورت، بهینه‌سازی ترتیب اسکن اندپوینت با پشتیبانی از رنج‌های Zero Trust، و مکانیزم ثبت‌نام مقاوم همراه با چرخش TLS Fingerprint برای شبکه‌های دارای اختلال شدید.
+
+### 📱 تغییرات و بهبودهای رابط کاربری (UI & UX)
+* **بازطراحی بخش تنظیمات پیشرفته (Advanced Settings):** بهینه‌سازی رابط کاربری برای پیمایش آسان‌تر، اضافه شدن پشتیبانی از پروتکل `MASQUE-H2` در تنظیمات پیشرفته و بهینه‌سازی گزینه‌های اندپوینت با جایگزینی لینک‌های مستقیم و سریع به اسکنر و تاریخچه اندپوینت.
+
+### 🐛 رفع باگ‌ها و افزایش پایداری
+* **رفع باگ DNS داخل تونل:** برطرف شدن مشکل عدم اعمال صحیح `DNS inside the tunnel` و تضمین مسیریابی دقیق و پایدار DNS.
+
+---
 
 ## [1.1.1] — ۱۴۰۵/۰۶/۱۲ (نسخه فارسی)
 

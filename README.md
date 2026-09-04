@@ -6,9 +6,20 @@
 
 ---
 
+## What's new in v1.2.0
+
+We are excited to announce the v1.2.0 update for NajiAether! This release introduces a powerful Endpoint Scanner, upgrades the core engine to v1.8.0, redesigns Advanced Settings, and resolves key DNS issues.
+
+### ✨ Features & Highlights
+
+- **Endpoint Scanner Added** — a dedicated tool to discover healthy endpoints across 4 protocols (`MASQUE`, `MASQUE-H2`, `WireGuard`, and `AmneziaWG`). Features IPv4/IPv6 and port filters with one-tap configuration to apply settings and connect directly from search results.
+- **Core Engine Upgraded to v1.8.0** — updated to Aether Core v1.8.0, supporting advanced routing rules (`--route-block` & `--route-direct`) by domain, IP, and port, optimized endpoint scanning sequences with Zero Trust range support, and resilient registration fallbacks with TLS fingerprint rotation for censored networks.
+- **Advanced Settings Redesign** — streamlined UI for smoother navigation, added `MASQUE-H2` protocol support inside Advanced Settings, and optimized endpoint options with direct quick links to Endpoint Scanner and Endpoint History.
+- **Tunnel DNS Bug Fix** — resolved an issue where `DNS inside the tunnel` was not properly applied, ensuring accurate and reliable DNS routing.
+
 ## What's new in v1.1.1
 
-We are excited to announce the v1.1.1 update for NajiAether! This release introduces powerful new monitoring features, home screen widgets, stability fixes, and significant UI/UX enhancements.
+This release introduced powerful monitoring features, home screen widgets, stability fixes, and significant UI/UX enhancements.
 
 ### ✨ Features & Highlights
 
@@ -52,6 +63,6 @@ Download the latest APK from the [Releases](https://github.com/najishab/aether/r
 
 ## Credits & license
 
-- Powered by the **Aether** engine (v1.7.0).
+- Powered by the **Aether** engine (v1.8.0).
 
 Released under **AGPL-3.0**. See [LICENSE](LICENSE).

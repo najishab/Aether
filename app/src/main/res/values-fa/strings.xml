@@ -7,7 +7,7 @@
     <string name="endpoint_history_title">تاریخچه اندپوینت‌ها</string>
     <string name="endpoint_history_subtitle">اندپوینت‌های سالم اخیر</string>
     <string name="endpoint_history_empty">هنوز اندپوینت موفقی ثبت نشده است؛ بعد از اتصال اینجا نمایش داده می‌شود.</string>
-    <string name="scanner_title">اسکات اندپوینت</string>
+    <string name="scanner_title">اسکنر اندپوینت</string>
     <string name="scanner_subtitle">پیدا کردن اندپوینت سالم WARP همراه کشور و نود</string>
     <string name="scanner_protocol">پروتکل اسکن</string>
     <string name="scanner_protocol_masque_h2">MASQUE-H2</string>
